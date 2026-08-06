@@ -43,3 +43,56 @@
   .palette-backdrop { padding: 74px 12px 0; }
   .palette { width: 100%; }
 }
+
+/* Flow-first composition: the story index lives with the outer navigation. */
+.app-shell { grid-template-columns: 292px 1fr; }
+.sidebar { min-height: 100vh; height: 100vh; overflow: hidden; }
+.main-content { min-height: 100vh; overflow: hidden; }
+.topbar, .content-heading, .flow-tabs, .flow-list, .inspector { display: none !important; }
+.nav { margin-bottom: 15px; }
+.story-nav { border-top: 1px solid #30302a; padding: 18px 0 0; overflow: auto; min-height: 0; flex: 1; }
+.story-breadcrumbs { display: flex; gap: 7px; align-items: center; padding: 0 10px 20px; color: #707168; font: 9px 'DM Mono'; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.story-breadcrumbs b { color: var(--cream); font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
+.story-breadcrumbs span:nth-child(2) { color: #45463f; }
+.story-nav .list-heading { padding-left: 10px; padding-right: 10px; }
+.story-nav .story-group { padding: 0 7px; }
+.flow-screen { min-height: 100vh; display: flex; flex-direction: column; }
+.flow-screen-bar { padding: 28px 52px 23px; border-bottom: 1px solid #30312a; display: flex; align-items: center; justify-content: space-between; background: #171714; }
+.flow-screen-kicker { color: var(--coral); text-transform: uppercase; font: 9px 'DM Mono'; letter-spacing: 1px; margin-bottom: 8px; }
+.flow-screen-bar strong { display: block; color: #ece8dd; font: 600 22px 'Space Grotesk'; letter-spacing: -.6px; }
+.flow-screen-bar > div:first-child > span { display: block; color: #77786e; font: 9px 'DM Mono'; margin-top: 6px; }
+.flow-screen-actions { display: flex; gap: 20px; align-items: center; }
+.share-link, .back-link { color: #aaa99e; background: transparent; font-size: 11px; }
+.share-link:hover, .back-link:hover { color: var(--cream); }
+.story-flow-canvas { position: relative; flex: 1; min-height: 0; overflow: auto; background-color: #1e1e1a; background-image: radial-gradient(#303129 0.75px, transparent .75px); background-size: 17px 17px; }
+.story-flow-canvas .canvas-inner { min-height: calc(100vh - 142px); padding: 40px 40px 74px; }
+.story-flow-canvas .river-view { width: min(640px, 100%); }
+.story-flow-canvas .river-node { padding: 17px 18px 15px; }
+.story-flow-canvas .river-node strong { font-size: 16px; }
+.story-flow-canvas .river-node > span { font-size: 11px; }
+.story-flow-canvas .inline-expansion { width: 96%; }
+.story-flow-canvas .canvas-footer { position: fixed; left: 292px; bottom: 0; right: 0; }
+.behavior-focus { min-height: 100vh; background: #1e1e1a; background-image: radial-gradient(#303129 0.75px, transparent .75px); background-size: 17px 17px; }
+.focus-header { min-height: 71px; border-bottom: 1px solid #30312a; background: #171714e8; display: flex; align-items: center; padding: 0 52px; gap: 30px; }
+.focus-breadcrumb { display: flex; gap: 9px; color: #76776e; font: 9px 'DM Mono'; align-items: center; flex: 1; }
+.focus-breadcrumb b { color: var(--cream); font-weight: 500; }
+.focus-breadcrumb span:nth-child(even) { color: #44453e; }
+.focus-content { max-width: 940px; margin: 0 auto; padding: 90px 52px 80px; display: grid; grid-template-columns: 1fr 280px; gap: 90px; }
+.focus-kicker { color: var(--mint); text-transform: uppercase; letter-spacing: 1.1px; font: 9px 'DM Mono'; margin-bottom: 15px; }
+.focus-kicker.coral { color: var(--coral); }.focus-kicker.gold { color: var(--gold); }.focus-kicker.lavender { color: var(--lavender); }.focus-kicker.sky { color: var(--sky); }
+.focus-main h1 { margin: 0 0 18px; color: #eeeae0; font: 600 clamp(32px, 4vw, 52px) 'Space Grotesk'; letter-spacing: -2px; max-width: 540px; }
+.focus-description { color: #a3a399; max-width: 500px; font-size: 15px; line-height: 1.55; margin: 0 0 45px; }
+.focus-operations { width: 100%; background: #262620; border: 1px solid #4a4b41; color: var(--cream); text-align: left; padding: 0 17px; border-radius: 3px; }
+.focus-operations:hover { border-color: #85867b; }.focus-operations-heading { padding: 15px 0 12px; display: flex; justify-content: space-between; color: #8d8e83; text-transform: uppercase; font: 9px 'DM Mono'; letter-spacing: .7px; }.focus-operations-heading b { color: var(--mint); font-weight: 400; }
+.focus-operation { border-top: 1px solid #3d3e36; display: flex; align-items: center; gap: 12px; padding: 15px 0; font-size: 12px; }.focus-operation > span { color: #77786e; font: 9px 'DM Mono'; }.focus-operation strong { font-weight: 500; }.focus-operation .icon { color: #77786e; margin-left: auto; }
+.focus-state { display: flex; gap: 12px; border: 1px solid #5c4a32; background: #2a2720; color: #d5c5a4; padding: 17px; }.focus-state b { font-size: 12px; }.focus-state p { color: #a69a80; font-size: 11px; line-height: 1.5; margin: 4px 0 0; }
+.focus-details { border-left: 1px solid #3a3b33; padding-left: 28px; }.focus-details h2 { color: #88897f; text-transform: uppercase; font: 9px 'DM Mono'; letter-spacing: .8px; margin: 30px 0 9px; }.focus-details .source-block { margin-top: 33px; }
+@media (max-width: 800px) {
+  .app-shell { display: block; }
+  .sidebar { display: flex; height: auto; min-height: 0; max-height: none; padding: 18px 16px 12px; overflow: visible; }
+  .brand { padding-bottom: 16px; }.workspace-switcher { margin-bottom: 16px; }.nav { display: flex; gap: 7px; margin-bottom: 10px; }.nav-label { display: none; }.nav-item { width: auto; flex: 1; }.nav-item .nav-count, .nav-item .key-hint { display: none; }
+  .story-nav { border-top: 1px solid #30302a; max-height: 220px; overflow: auto; }.sidebar-foot { display: none; }
+  .flow-screen-bar { padding: 22px 16px 18px; }.flow-screen-actions { gap: 10px; }.flow-screen-actions .toggle { font-size: 9px; }.share-link { display: none; }
+  .story-flow-canvas .canvas-inner { min-height: 650px; padding: 28px 16px 70px; }.story-flow-canvas .river-view { width: 100%; }.story-flow-canvas .canvas-footer { left: 0; }
+  .focus-header { padding: 0 16px; gap: 12px; flex-wrap: wrap; min-height: 76px; }.focus-breadcrumb { display: none; }.focus-header .toggle { margin-left: auto; }.focus-content { display: block; padding: 44px 16px; }.focus-main h1 { font-size: 36px; }.focus-details { border-left: 0; border-top: 1px solid #3a3b33; padding: 25px 0 0; margin-top: 45px; }
+}
