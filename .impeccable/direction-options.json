@@ -1,0 +1,73 @@
+{
+  "title": "Choose the new Storyline world",
+  "question": "A fresh light-mode visual system for developers understanding an unfamiliar codebase.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Approach Plate",
+      "kicker": "PROPOSED DIRECTION",
+      "lineage": "aviation navigation charts and approach plates",
+      "thesis": "A codebase becomes a navigable route: clear bearings, a primary path, and detail only when it helps the developer orient.",
+      "palette": ["#F4F8FA", "#102A43", "#176B87", "#F4A261"],
+      "materials": ["cloud-white chart stock", "fine route lines", "precise annotation marks"],
+      "viewport": "A tall route strip anchors the center; a compact flight-plan index sits left, and the selected behavior opens as a clear information plate on the right.",
+      "risk": "Must stay humane and calm, never become faux-military instrumentation.",
+      "sketch": ".impeccable/sketches/approach-plate.png"
+    },
+    {
+      "id": "challenger-one-bit",
+      "label": "One-bit Desktop",
+      "lineage": "early monochrome desktop systems",
+      "thesis": "Exploration happens through crisp overlapping windows and direct manipulation.",
+      "palette": ["#FBFBF7", "#121212", "#808080", "#121212"],
+      "materials": ["ordered dither", "pixel chrome", "marching-ants selection"],
+      "viewport": "A light desktop holds a story window, an evidence window, and a compact codebase index.",
+      "risk": "Memorable and direct, but its nostalgia could distract from calm comprehension.",
+      "case": "Strong developer recognition; weaker fit with the requested friendly light-mode calm.",
+      "sketch": ".impeccable/sketches/one-bit-desktop.png",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-one-bit-desktop-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/medium-native-one-bit-desktop.webp"
+    },
+    {
+      "id": "challenger-split-flap",
+      "label": "Split-flap Concourse",
+      "lineage": "rail-station departure boards",
+      "thesis": "Stories become a prioritized board whose meaningful changes update in a visible rhythm.",
+      "palette": ["#FAF9F4", "#242424", "#FFFFFF", "#CE6A35"],
+      "materials": ["mechanical cells", "timing rails", "change markers"],
+      "viewport": "A large flow board lists story steps as mechanical rows, with one focused route expanded beneath.",
+      "risk": "Makes sequence exceptionally clear, but can feel too operational for open-ended investigation.",
+      "case": "Strong product clarity; loses some audience warmth by framing exploration as dispatch.",
+      "sketch": ".impeccable/sketches/split-flap.png",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse.webp"
+    },
+    {
+      "id": "challenger-cloud-quarry",
+      "label": "Cloud Quarry",
+      "lineage": "surreal construction diagrams",
+      "thesis": "A codebase is opened in layers, each cut revealing a more specific space to explore.",
+      "palette": ["#F8FBFC", "#1A3448", "#8FC7DE", "#A5A8AD"],
+      "materials": ["soft cut blocks", "blue voids", "technical stencil labels"],
+      "viewport": "Stacked pale structural blocks form the flow, with carved openings revealing behaviors and evidence.",
+      "risk": "Beautifully distinctive, but risks turning a working tool into an illustration.",
+      "case": "Audience identification is weaker than the proposed route metaphor; it fuses poorly with rapid scanning.",
+      "sketch": ".impeccable/sketches/cloud-quarry.png",
+      "hero": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-cloud-quarry-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-cloud-quarry.webp"
+    }
+  ],
+  "reroll": true,
+  "steer": true,
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "lineage": "contemporary developer tools",
+    "thesis": "A restrained light dashboard, executed with exceptional clarity.",
+    "palette": ["#FFFFFF", "#172033", "#5C6B82", "#2563EB"],
+    "materials": ["quiet panels", "subtle borders", "familiar controls"],
+    "viewport": "A conventional app shell with flow cards, a details sidebar, and searchable navigation.",
+    "risk": "Safest and clearest, but least distinctive.",
+    "sketch": ".impeccable/sketches/category-standard.png"
+  }
+}

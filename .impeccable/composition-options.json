@@ -1,0 +1,45 @@
+{
+  "title": "Choose the Storyline workspace composition",
+  "question": "All three use the approved light Approach Plate visual system. Choose the reading model that best supports a developer building a mental model of an unfamiliar codebase.",
+  "options": [
+    {
+      "id": "route-strip",
+      "label": "Vertical route",
+      "kicker": "STORY-FIRST",
+      "lineage": "approach plate route strip",
+      "thesis": "The full product path is read from top to bottom, with expansion attached exactly where it happens.",
+      "palette": ["#F4F8FA", "#102A43", "#176B87", "#F4A261"],
+      "materials": ["chart stock", "route line", "annotation rules"],
+      "viewport": "A left story index, a dominant vertical path, and a calm right evidence plate.",
+      "risk": "Long paths demand careful grouping to retain the overview.",
+      "sketch": ".impeccable/mocks/route-strip.png"
+    },
+    {
+      "id": "horizontal-route",
+      "label": "Horizontal route",
+      "kicker": "OVERVIEW-FIRST",
+      "lineage": "approach plate route crossing",
+      "thesis": "The product path is scanned across the workspace while the selected behavior earns the page below.",
+      "palette": ["#F4F8FA", "#102A43", "#176B87", "#F4A261"],
+      "materials": ["chart stock", "route line", "annotation rules"],
+      "viewport": "A top flight-plan band, a broad horizontal story path, and a large focused plate beneath.",
+      "risk": "Wide flows can make small steps feel compressed.",
+      "sketch": ".impeccable/mocks/horizontal-route.png"
+    },
+    {
+      "id": "dossier-route",
+      "label": "Dossier route",
+      "kicker": "INVESTIGATION-FIRST",
+      "lineage": "approach plate detail sheet",
+      "thesis": "The current behavior leads, while a continuous route beneath it keeps the broader story legible.",
+      "palette": ["#F4F8FA", "#102A43", "#176B87", "#F4A261"],
+      "materials": ["chart stock", "route line", "annotation rules"],
+      "viewport": "A large behavior explanation, a quiet source margin, and a route that continues through the page.",
+      "risk": "The selected node could dominate before a reader sees the whole path.",
+      "sketch": ".impeccable/mocks/dossier-route.png"
+    }
+  ],
+  "reroll": false,
+  "steer": false,
+  "canon": false
+}

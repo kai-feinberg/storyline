@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-08T17:20:28Z",
+  "title": "Design System: Storyline",
+  "extensions": {
+    "colorMeta": {
+      "canvas-ivory": { "role": "neutral", "displayName": "Canvas Ivory", "canonical": "#faf6f0", "tonalRamp": ["#ffffff", "#fffdf9", "#faf6f0", "#f6f1e9", "#f3ede5"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#fffdf9", "tonalRamp": ["#ffffff", "#fffdf9", "#faf6f0"] },
+      "paper-strong": { "role": "neutral", "displayName": "Paper Strong", "canonical": "#ffffff" },
+      "ink-navy": { "role": "neutral", "displayName": "Ink Navy", "canonical": "#0f2638", "tonalRamp": ["#4b5b66", "#0f2638"] },
+      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "#4b5b66" },
+      "path-coral": { "role": "primary", "displayName": "Path Coral", "canonical": "#ff6f61", "tonalRamp": ["#fff0ec", "#ef978d", "#ff6f61", "#a54f46"] },
+      "path-coral-soft": { "role": "primary", "displayName": "Path Coral Soft", "canonical": "#fff0ec" },
+      "context-mint": { "role": "secondary", "displayName": "Context Mint", "canonical": "#d8eee6", "tonalRamp": ["#f0f7f3", "#d8eee6", "#79b9a7", "#477d6e"] },
+      "context-mint-strong": { "role": "secondary", "displayName": "Context Mint Strong", "canonical": "#79b9a7" },
+      "warm-gray": { "role": "neutral", "displayName": "Warm Gray", "canonical": "#ded7cd", "tonalRamp": ["#f1ebe3", "#eee8df", "#ded7cd", "#c9c1b7"] },
+      "warm-gray-soft": { "role": "neutral", "displayName": "Warm Gray Soft", "canonical": "#eee8df" },
+      "line": { "role": "neutral", "displayName": "Warm Rule", "canonical": "#e3ddd3" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Story Display", "purpose": "Primary story titles." },
+      "headline": { "displayName": "Context Headline", "purpose": "Selected behavior and empty-state headings." },
+      "title": { "displayName": "Step Title", "purpose": "Outcome-oriented story-step titles." },
+      "body": { "displayName": "Interface Body", "purpose": "Summaries, explanations, needs, and outputs." },
+      "label": { "displayName": "Technical Label", "purpose": "Paths, line numbers, counts, shortcuts, and compact system metadata." }
+    },
+    "shadows": [
+      { "name": "drawer-ambient", "value": "0 12px 38px rgba(53, 42, 30, 0.08)", "purpose": "Off-canvas mobile navigation." },
+      { "name": "repository-lift", "value": "0 7px 24px rgba(53, 42, 30, 0.06)", "purpose": "Repository switcher." },
+      { "name": "navigation-lift", "value": "0 7px 22px rgba(53, 42, 30, 0.05)", "purpose": "Active navigation and story links." },
+      { "name": "card-rest", "value": "0 10px 34px rgba(53, 42, 30, 0.07)", "purpose": "Resting story card." },
+      { "name": "card-selected", "value": "0 18px 48px rgba(53, 42, 30, 0.11)", "purpose": "Selected story card." },
+      { "name": "evidence-lift", "value": "0 8px 28px rgba(53, 42, 30, 0.07)", "purpose": "Source-trace container." }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "0.2s ease", "purpose": "Compact icon and hover state transitions." },
+      { "name": "card-state", "value": "0.22s ease", "purpose": "Story-card elevation and translation." },
+      { "name": "route-state", "value": "0.24s ease", "purpose": "Route marker color and scale." },
+      { "name": "drawer-enter", "value": "0.28s cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Mobile navigation entrance." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "Effective transition and animation duration under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "compact-desktop", "value": "1080px" },
+      { "name": "stacked", "value": "820px" },
+      { "name": "compact-mobile", "value": "560px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "navigation-item",
+      "description": "Quiet rounded navigation that becomes a lifted paper surface when active.",
+      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M5 4.5h8.5A2.5 2.5 0 0 1 16 7v9H7.5A2.5 2.5 0 0 1 5 13.5v-9Z\"/><path d=\"M8 8h5M8 11h4\"/></svg><span>Stories</span><small>18</small></a>",
+      "css": ".ds-nav-item{min-height:40px;border-radius:12px;color:#5a676b;background:transparent;padding:0 11px;display:flex;align-items:center;gap:11px;text-decoration:none;font:600 13px 'Albert Sans',sans-serif;transition:background .2s ease,color .2s ease}.ds-nav-item svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.ds-nav-item small{margin-left:auto;color:#7f8984;font:500 10px 'Source Code Pro',monospace}.ds-nav-item:hover{background:rgba(255,255,255,.55);color:#0f2638}.ds-nav-item-active{background:#fffdf9;color:#0f2638;box-shadow:0 7px 22px rgba(53,42,30,.05)}.ds-nav-item-active svg{color:#ff6f61}.ds-nav-item:focus-visible{outline:3px solid rgba(255,111,97,.32);outline-offset:3px}"
+    },
+    {
+      "name": "Search Control",
+      "kind": "input",
+      "refersTo": "search-control",
+      "description": "A low-contrast command-search control with a paper keyboard cue.",
+      "html": "<button class=\"ds-search\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"9\" r=\"5\"/><path d=\"m13 13 4 4\"/></svg><span>Ask about this codebase</span><kbd>⌘K</kbd></button>",
+      "css": ".ds-search{width:320px;height:38px;padding:0 12px;display:flex;align-items:center;gap:9px;color:#6a777b;background:#f1ebe3;border:0;border-radius:11px;text-align:left;font:400 12px 'Albert Sans',sans-serif;transition:background .2s ease,color .2s ease}.ds-search svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}.ds-search kbd{margin-left:auto;font:500 9px 'Source Code Pro',monospace;border:1px solid #d7cfc5;border-radius:5px;padding:2px 5px;background:#fffdf9}.ds-search:hover{background:#ece4da;color:#0f2638}.ds-search:focus-visible{outline:3px solid rgba(255,111,97,.32);outline-offset:3px}"
+    },
+    {
+      "name": "Route Marker",
+      "kind": "custom",
+      "refersTo": "route-marker-selected",
+      "description": "The coral numbered stop that anchors progression and selection.",
+      "html": "<button class=\"ds-route-marker\" aria-label=\"Story step 3\">3</button>",
+      "css": ".ds-route-marker{width:47px;height:47px;display:grid;place-items:center;border-radius:50%;background:#ff6f61;border:1px solid #ff6f61;color:#fff;font:600 11px 'Source Code Pro',monospace;transition:background .24s ease,color .24s ease,transform .24s ease}.ds-route-marker:hover{transform:scale(1.06)}.ds-route-marker:active{transform:scale(1)}.ds-route-marker:focus-visible{outline:3px solid rgba(255,111,97,.32);outline-offset:3px}"
+    },
+    {
+      "name": "Story Card",
+      "kind": "card",
+      "refersTo": "story-card",
+      "description": "The primary behavior chapter: spacious paper, semantic hierarchy, and quiet elevation.",
+      "html": "<article class=\"ds-story-card\"><button class=\"ds-story-main\"><span class=\"ds-step-type\">Behavior</span><span class=\"ds-step-system\">Credits service</span><strong>Add purchased credits</strong><span class=\"ds-step-summary\">Increase the balance by the amount the customer bought.</span><span class=\"ds-step-action\">See this step →</span></button></article>",
+      "css": ".ds-story-card{overflow:hidden;border-radius:16px;background:#fff;box-shadow:0 10px 34px rgba(53,42,30,.07);transition:box-shadow .22s ease,transform .22s ease}.ds-story-card:hover{box-shadow:0 18px 48px rgba(53,42,30,.11);transform:translateY(-2px)}.ds-story-main{width:100%;min-height:150px;padding:21px 64px 20px 23px;display:grid;grid-template-columns:1fr auto;background:transparent;border:0;color:#0f2638;text-align:left;font-family:'Albert Sans',sans-serif}.ds-step-type{color:#a54f46;font-size:10px;font-weight:700}.ds-step-system{color:#6f7e78;font:500 10px 'Source Code Pro',monospace}.ds-story-main strong{grid-column:1/-1;margin-top:16px;font-size:20px;line-height:1.15;font-weight:600;letter-spacing:-.02em}.ds-step-summary{grid-column:1/-1;max-width:52ch;margin-top:7px;color:#4b5b66;font-size:13px;line-height:1.5}.ds-step-action{grid-column:1/-1;margin-top:17px;color:#587068;font-size:11px;font-weight:600}.ds-story-main:focus-visible{outline:3px solid rgba(255,111,97,.32);outline-offset:-3px}"
+    },
+    {
+      "name": "Local Expansion",
+      "kind": "custom",
+      "description": "A mint semantic-operation field attached locally to its parent story card.",
+      "html": "<section class=\"ds-local-expansion\"><div class=\"ds-expansion-head\"><strong>Inside this behavior</strong><span>3 operations</span></div><ol><li><span>1</span>Read the current balance</li><li><span>2</span>Calculate purchased credits</li><li><span>3</span>Write the new balance</li></ol></section>",
+      "css": ".ds-local-expansion{background:#f0f7f3;border-top:1px solid #dcece5;color:#355248;font-family:'Albert Sans',sans-serif}.ds-expansion-head{min-height:44px;padding:0 22px;display:flex;justify-content:space-between;align-items:center;font-size:10px}.ds-expansion-head strong{font-weight:700}.ds-expansion-head span{color:#657b73;font:500 10px 'Source Code Pro',monospace}.ds-local-expansion ol{list-style:none;margin:0;padding:0 22px 15px}.ds-local-expansion li{min-height:40px;border-top:1px solid #dce9e3;display:flex;align-items:center;gap:11px;font-size:11px}.ds-local-expansion li span{width:20px;color:#73a596;font:500 9px 'Source Code Pro',monospace}"
+    },
+    {
+      "name": "Source Trace",
+      "kind": "chip",
+      "refersTo": "source-trace",
+      "description": "Compact implementation evidence with a calm mint icon field.",
+      "html": "<button class=\"ds-source-trace\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M6 3.5h6l3 3V17H6z\"/><path d=\"M12 3.5V7h3M8.5 10h4M8.5 13h4\"/></svg><span><small>Source trace</small><strong>credits/applyPurchase.ts</strong><em>Lines 31–78</em></span><b>›</b></button>",
+      "css": ".ds-source-trace{width:100%;padding:15px;border:0;border-radius:14px;background:#fffdf9;box-shadow:0 8px 28px rgba(53,42,30,.07);display:grid;grid-template-columns:29px minmax(0,1fr) auto;gap:11px;align-items:center;color:#61726d;text-align:left;font-family:'Albert Sans',sans-serif;transition:transform .2s ease,box-shadow .2s ease}.ds-source-trace svg{width:29px;height:29px;padding:6px;border-radius:9px;background:#d8eee6;color:#477d6e;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.ds-source-trace small,.ds-source-trace strong,.ds-source-trace em{display:block}.ds-source-trace small{color:#7d8984;font-size:9px;font-weight:600}.ds-source-trace strong{overflow:hidden;text-overflow:ellipsis;margin-top:4px;color:#0f2638;font:500 10px 'Source Code Pro',monospace;white-space:nowrap}.ds-source-trace em{margin-top:3px;color:#82908a;font:normal 500 9px 'Source Code Pro',monospace}.ds-source-trace b{font-size:18px;font-weight:400}.ds-source-trace:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(53,42,30,.09)}.ds-source-trace:focus-visible{outline:3px solid rgba(255,111,97,.32);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Clear Path",
+    "overview": "Storyline is a gentle path through complexity. Warm paper-like surfaces and generous whitespace reduce cognitive pressure, while a continuous coral route gives the reader a dependable narrative thread. Pale mint fields reveal supporting behavior and source context without competing with the story. The system is calm, friendly, intelligent, and quietly technical; product behavior is always encountered before implementation evidence.",
+    "keyCharacteristics": [
+      "Warm ivory, layered paper, deep ink navy, sparse coral, and calm mint.",
+      "A vertical story route as the dominant form and reading order.",
+      "Progressive disclosure from story step to semantic operations to source trace.",
+      "Ambient elevation, thin warm rules, rounded frames, and simple line icons.",
+      "Spacious humanist typography with monospace reserved for implementation detail."
+    ],
+    "rules": [
+      { "name": "The Coral Path Rule", "body": "Coral communicates progression, selection, or a key action; it is not a general surface fill.", "section": "colors" },
+      { "name": "The Supporting Mint Rule", "body": "Mint indicates context, evidence, completion, or semantic detail. It never replaces coral as the narrative path.", "section": "colors" },
+      { "name": "The Technical Accent Rule", "body": "Reserve monospace for paths, line numbers, keyboard shortcuts, counts, and compact system metadata.", "section": "typography" },
+      { "name": "The Ambient-Only Rule", "body": "Shadows stay broad, warm, and low-opacity; never use hard, dark, or decorative elevation.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do preserve the vertical story as the primary reading order.",
+      "Do lead with human outcomes, then disclose semantic operations and source evidence locally.",
+      "Do use coral sparingly for the path, selection, focus, and key progression cues.",
+      "Do use mint for supporting detail, completion, readiness, and evidence icon fields.",
+      "Do retain visible keyboard focus and reduced-motion behavior."
+    ],
+    "donts": [
+      "Don't turn the experience into a dense technical dashboard, data model, or call graph.",
+      "Don't imply causal dependencies with decorative arrows when they are only metadata.",
+      "Don't use literal code brackets, terminal aesthetics, generic sparkles, gradients, stock-office imagery, or generic AI imagery.",
+      "Don't use coral as a broad background color or mint as the primary action color.",
+      "Don't spread monospace across headlines or explanatory prose.",
+      "Don't add hard shadows, heavy borders, sharp cards, or dense all-caps labels."
+    ],
+    "reviewDisposition": "PASS"
+  }
+}
