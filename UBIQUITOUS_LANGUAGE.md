@@ -32,7 +32,7 @@ Storyline uses a three-layer model for moving from product meaning to source evi
 | Term | Definition | Aliases to avoid |
 | --- | --- | --- |
 | **Implementation Trace** | An evidence-grounded sequence of source-level calls that supports one Semantic Operation. | Call graph, technical details, internals |
-| **Implementation Call** | One function, method, query, API call, or message send within an Implementation Trace. | Function node, code step |
+| **Implementation Call** | One function, method, query, API call, or message send within an Implementation Trace, paired with a plain-language description of what it does in this flow. | Function node, code step |
 | **Source Trace** | A direct pointer from a semantic concept to the source location that supports it. | Link, citation, file chip |
 | **Source Evidence** | The code, query, configuration, or external boundary used to justify a Storyline representation. | Proof, source detail |
 | **Dependency** | Supporting information or capability required by a concept but not part of the Story Path’s progression. | Edge, arrow, relationship |

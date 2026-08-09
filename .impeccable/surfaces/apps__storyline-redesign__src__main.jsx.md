@@ -38,7 +38,9 @@ related_targets: ["apps/storyline-redesign/src/styles.css", "apps/storyline-rede
 | Vertical story path and numbered markers | Semantic ordered list + CSS geometry |
 | Story-step and local expansion cards | Semantic React + CSS |
 | Behavior focus and semantic-operation path | Semantic ordered list + React state |
-| Expandable implementation traces with calls and I/O | Semantic React + compact source-code typography |
+| Independently selectable, expandable, and openable Story Steps | Explicit mouse actions plus matching keyboard navigation |
+| Expandable implementation traces with described calls and I/O | Semantic React + compact source-code typography |
+| Keyboard guidance | Help action in the navigation rail opens a focused shortcut dialog |
 | Evidence/source trace | Semantic React + authored SVG icon |
 | Responsive drawer and stacked detail panel | CSS breakpoints + React state |
 

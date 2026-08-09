@@ -19,12 +19,12 @@ const steps = [
 ];
 
 const operationDetails = {
-  'Read the customer reference': { summary: 'Extract the durable customer identifier from the completed payment.', needs: 'Stripe payment event', produces: 'Customer reference', source: 'billing/paymentService.ts', lines: '48–56', calls: ['payment.customerId()', 'normalizeCustomerRef()', 'assertCustomerRef()'] },
-  'Find candidate accounts': { summary: 'Search accounts that are linked to the external customer reference.', needs: 'Customer reference', produces: 'Candidate accounts', source: 'accounts/findByCustomer.ts', lines: '14–39', calls: ['accountRepo.findByCustomerRef()', 'filterActiveAccounts()', 'rankAccountMatches()'] },
-  'Confirm the active account': { summary: 'Resolve ambiguity and select the account that can receive the purchase.', needs: 'Candidate accounts', produces: 'Matched active account', source: 'accounts/resolveOwner.ts', lines: '21–64', calls: ['resolveAccountOwner()', 'assertSingleMatch()', 'account.isActive()'] },
-  'Read the current balance': { summary: 'Load the latest balance before applying the purchase.', needs: 'Matched account', produces: 'Current balance', source: 'credits/balance.ts', lines: '11–28', calls: ['balanceRepo.get()', 'lockBalanceRow()', 'assertBalanceVersion()'] },
-  'Calculate purchased credits': { summary: 'Translate the paid amount into the number of credits to add.', needs: 'Payment amount', produces: 'Credit quantity', source: 'credits/pricing.ts', lines: '37–59', calls: ['pricing.creditRate()', 'money.toMinorUnits()', 'calculateCreditQuantity()'] },
-  'Write the new balance': { summary: 'Persist the updated balance as one atomic change.', needs: 'Current balance, credit quantity', produces: 'Updated balance', source: 'credits/applyPurchase.ts', lines: '61–78', calls: ['balance.add()', 'balanceRepo.compareAndSet()', 'creditEvents.recordPurchase()'] },
+  'Read the customer reference': { summary: 'Extract the durable customer identifier from the completed payment.', needs: 'Stripe payment event', produces: 'Customer reference', source: 'billing/paymentService.ts', lines: '48–56', calls: [{ name: 'payment.customerId()', description: 'Reads the external customer identifier attached to the successful payment.' }, { name: 'normalizeCustomerRef()', description: 'Converts provider-specific formatting into the identifier shape used by the account domain.' }, { name: 'assertCustomerRef()', description: 'Stops the behavior when the payment cannot be tied to a durable customer reference.' }] },
+  'Find candidate accounts': { summary: 'Search accounts that are linked to the external customer reference.', needs: 'Customer reference', produces: 'Candidate accounts', source: 'accounts/findByCustomer.ts', lines: '14–39', calls: [{ name: 'accountRepo.findByCustomerRef()', description: 'Queries every account currently linked to the normalized customer reference.' }, { name: 'filterActiveAccounts()', description: 'Removes archived and suspended accounts that cannot receive purchased credits.' }, { name: 'rankAccountMatches()', description: 'Orders remaining matches using ownership and recency signals before resolution.' }] },
+  'Confirm the active account': { summary: 'Resolve ambiguity and select the account that can receive the purchase.', needs: 'Candidate accounts', produces: 'Matched active account', source: 'accounts/resolveOwner.ts', lines: '21–64', calls: [{ name: 'resolveAccountOwner()', description: 'Chooses the account whose ownership signals best match the payment customer.' }, { name: 'assertSingleMatch()', description: 'Prevents crediting when more than one account remains equally plausible.' }, { name: 'account.isActive()', description: 'Confirms the selected account can receive a balance mutation now.' }] },
+  'Read the current balance': { summary: 'Load the latest balance before applying the purchase.', needs: 'Matched account', produces: 'Current balance', source: 'credits/balance.ts', lines: '11–28', calls: [{ name: 'balanceRepo.get()', description: 'Loads the account’s latest persisted credit balance and version.' }, { name: 'lockBalanceRow()', description: 'Prevents a concurrent purchase from changing the same balance mid-update.' }, { name: 'assertBalanceVersion()', description: 'Rejects stale state before the new credit amount is calculated.' }] },
+  'Calculate purchased credits': { summary: 'Translate the paid amount into the number of credits to add.', needs: 'Payment amount', produces: 'Credit quantity', source: 'credits/pricing.ts', lines: '37–59', calls: [{ name: 'pricing.creditRate()', description: 'Finds the conversion rate that applied when the payment was completed.' }, { name: 'money.toMinorUnits()', description: 'Normalizes the paid amount into integer units to avoid decimal drift.' }, { name: 'calculateCreditQuantity()', description: 'Applies the rate and purchase rules to produce the exact credit quantity.' }] },
+  'Write the new balance': { summary: 'Persist the updated balance as one atomic change.', needs: 'Current balance, credit quantity', produces: 'Updated balance', source: 'credits/applyPurchase.ts', lines: '61–78', calls: [{ name: 'balance.add()', description: 'Builds the next balance value without mutating the loaded balance object.' }, { name: 'balanceRepo.compareAndSet()', description: 'Writes only when the stored version still matches the version that was read.' }, { name: 'creditEvents.recordPurchase()', description: 'Records why the balance changed so the purchase can be traced later.' }] },
 };
 
 function Icon({ name, size = 18 }) {
@@ -40,6 +40,7 @@ function Icon({ name, size = 18 }) {
     grid: <><rect x="4" y="4" width="4" height="4" rx="1"/><rect x="12" y="4" width="4" height="4" rx="1"/><rect x="4" y="12" width="4" height="4" rx="1"/><rect x="12" y="12" width="4" height="4" rx="1"/></>,
     back: <path d="m12 5-5 5 5 5"/>,
     plus: <path d="M10 4v12M4 10h12"/>,
+    help: <><circle cx="10" cy="10" r="7"/><path d="M8.3 7.7a2 2 0 1 1 2.7 1.9c-.7.3-1 .7-1 1.4M10 14h.01"/></>,
   };
   return <svg className="icon" width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
@@ -48,13 +49,14 @@ function LogoMark() {
   return <svg className="logo-mark" viewBox="0 0 38 46" aria-hidden="true"><path className="logo-frame" d="M30 10V7.5A5.5 5.5 0 0 0 24.5 2h-14A5.5 5.5 0 0 0 5 7.5v31"/><path className="logo-frame" d="M8 44h16.5a5.5 5.5 0 0 0 5.5-5.5V25"/><path className="logo-path" d="M26.8 12.3c-7.1 1-13.1 2.7-13.2 6.1-.1 2.6 4.3 4.2 7.5 6.1 3.4 2 5.6 4.2 3.9 7.1-2.2 3.8-9.1 5.2-16 6.1 5.1-2.8 9.4-5.5 9.5-8.5.1-2.3-3-3.8-6.1-5.7-3.5-2.2-6.2-4.7-4-7.7 2.5-3.2 10.2-3.9 18.4-3.5Z"/></svg>;
 }
 
-function NavigationRail({ onOpenStories }) {
+function NavigationRail({ onOpenStories, onOpenShortcuts }) {
   return <aside className="nav-rail" aria-label="Workspace navigation">
     <button className="rail-logo" aria-label="Storyline home"><LogoMark /></button>
     <nav>
       <button className="rail-button active" aria-label="Current story"><Icon name="story"/><span>Story</span></button>
       <button className="rail-button" onClick={onOpenStories} aria-label="All stories"><Icon name="grid"/><span>All</span></button>
       <button className="rail-button" aria-label="Search"><Icon name="search"/><span>Search</span></button>
+      <button className="rail-button" onClick={onOpenShortcuts} aria-label="Keyboard shortcuts"><Icon name="help"/><span>Help</span></button>
     </nav>
     <div className="rail-bottom"><span className="status-dot"/><button className="avatar" aria-label="User profile">KM</button></div>
   </aside>;
@@ -86,8 +88,7 @@ function CompactStoryHeader({ focusStep, onBack }) {
       <button>Stories</button><Icon name="chevron" size={11}/>
       {focusStep ? <><button onClick={onBack}>Purchase credits</button><Icon name="chevron" size={11}/><strong>{focusStep.title}</strong></> : <strong>Purchase credits</strong>}
     </div>
-    {!focusStep && <div className="compact-title"><div><h1>Purchase credits</h1><p>A customer buys credits and receives confirmation.</p></div><div className="story-meta"><span><i/>Main path</span><span>5 steps</span></div></div>}
-    <div className="shortcut-strip" aria-label="Keyboard shortcuts"><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>→</kbd> Go deeper</span><span><kbd>←</kbd> Go back</span><span><kbd>↵</kbd> Expand</span></div>
+    {!focusStep && <div className="compact-title"><div><h1>Purchase credits</h1><p>A customer buys credits and receives confirmation.</p></div></div>}
   </header>;
 }
 
@@ -95,11 +96,12 @@ function StoryStep({ step, index, selected, expanded, onSelect, onOpen, onToggle
   return <li className={`route-stop ${selected ? 'selected' : ''}`} data-nav-id={step.id}>
     <div className="route-index" aria-hidden="true"><span>{index + 1}</span></div>
     <article className="step-card">
-      <button className="step-main" onClick={() => { onSelect(step); onOpen(step); }} aria-label={`Open ${step.title}`}>
+      <button className="step-main" onClick={() => onSelect(step)} aria-label={`Select ${step.title}`}>
         <span className="step-type">{step.type}</span><span className="step-system">{step.system}</span><span className="step-indicator"><Icon name="chevron" size={15}/></span>
-        <strong>{step.title}</strong><span className="step-summary">{step.summary}</span><span className="step-action">Explore this step <Icon name="chevron" size={14}/></span>
+        <strong>{step.title}</strong><span className="step-summary">{step.summary}</span>
       </button>
-      {step.operations && <div className="local-expansion"><button className="expansion-toggle" onClick={() => onToggle(step.id)}><span>Inside this behavior</span><span>{expanded ? 'Hide' : `${step.operations.length} operations`}</span></button>{expanded && <ol>{step.operations.map((operation, operationIndex) => <li key={operation}><span>{operationIndex + 1}</span>{operation}</li>)}</ol>}</div>}
+      <div className="step-actions"><button onClick={() => onOpen(step)}>Open {step.type.toLowerCase()} <Icon name="chevron" size={14}/></button>{step.operations && <button onClick={() => onToggle(step.id)} aria-expanded={expanded}>{expanded ? 'Contract' : 'Expand here'} <Icon name="chevron" size={14}/></button>}</div>
+      {step.operations && expanded && <div className="local-expansion"><div className="expansion-heading"><span>Inside this behavior</span><span>{step.operations.length} semantic operations</span></div><ol>{step.operations.map((operation, operationIndex) => { const detail = operationDetails[operation]; return <li key={operation}><span>{operationIndex + 1}</span><div><strong>{operation}</strong><small>{detail?.summary}</small><em>{detail?.needs} <Icon name="chevron" size={11}/> {detail?.produces}</em></div></li>; })}</ol></div>}
     </article>
   </li>;
 }
@@ -115,7 +117,7 @@ function BehaviorFocus({ step, selectedOperation, expandedOperation, onSelectOpe
     <div className="behavior-map">
       <div className="behavior-input"><span>Enters with</span><strong>{step.needs}</strong></div>
       <ol>{operations.map((operation, index) => {
-        const detail = operationDetails[operation] || { summary: `Complete the ${step.title.toLowerCase()} behavior.`, needs: step.needs, produces: step.produces, source: step.source, lines: step.lines, calls: ['resolveInput()', 'performOperation()', 'recordResult()'] };
+        const detail = operationDetails[operation] || { summary: `Complete the ${step.title.toLowerCase()} behavior.`, needs: step.needs, produces: step.produces, source: step.source, lines: step.lines, calls: [{ name: 'resolveInput()', description: 'Validates and converts the incoming data into the shape this operation expects.' }, { name: 'performOperation()', description: 'Applies the domain rule represented by this semantic operation.' }, { name: 'recordResult()', description: 'Persists the result and makes it available to the next step in the story.' }] };
         const isExpanded = expandedOperation === operation;
         return <li key={operation} className={`${selectedOperation === operation ? 'selected' : ''} ${isExpanded ? 'expanded' : ''}`} data-nav-id={operation}>
           <span className="operation-index">{index + 1}</span>
@@ -125,7 +127,7 @@ function BehaviorFocus({ step, selectedOperation, expandedOperation, onSelectOpe
             </button>
             {isExpanded && <div className="implementation-trace">
               <div className="trace-io"><span><small>Required input</small><strong>{detail.needs}</strong></span><Icon name="chevron" size={14}/><span><small>Produced output</small><strong>{detail.produces}</strong></span></div>
-              <div className="call-sequence"><div className="trace-heading"><span>Implementation trace</span><em>{detail.source} · {detail.lines}</em></div><ol>{detail.calls.map((call, callIndex) => <li key={call}><span>{callIndex + 1}</span><code>{call}</code></li>)}</ol></div>
+              <div className="call-sequence"><div className="trace-heading"><span>Implementation trace</span><em>{detail.source} · {detail.lines}</em></div><ol>{detail.calls.map((call, callIndex) => <li key={call.name}><span>{callIndex + 1}</span><div><code>{call.name}</code><p>{call.description}</p></div></li>)}</ol></div>
             </div>}
           </article>
         </li>;
@@ -148,6 +150,12 @@ function DetailPanel({ step, operation }) {
   </aside>;
 }
 
+function ShortcutModal({ open, onClose }) {
+  if (!open) return null;
+  const shortcuts = [['↑ / ↓', 'Move the Selection within the current layer'], ['→', 'Go deeper into the selected concept'], ['←', 'Contract the Expansion or return to the parent layer'], ['Enter', 'Expand or contract inline details'], ['Esc', 'Return to the Story Layer']];
+  return <div className="shortcut-modal" role="dialog" aria-modal="true" aria-labelledby="shortcut-title"><div className="shortcut-modal-head"><div><h2 id="shortcut-title">Navigate without losing the story</h2><p>The same keys work at every layer.</p></div><button onClick={onClose} aria-label="Close keyboard shortcuts"><Icon name="close"/></button></div><ul>{shortcuts.map(([keys, label]) => <li key={keys}><kbd>{keys}</kbd><span>{label}</span></li>)}</ul></div>;
+}
+
 function App() {
   const [selectedId, setSelectedId] = useState('add-credits');
   const [focusId, setFocusId] = useState(null);
@@ -155,6 +163,7 @@ function App() {
   const [expandedOperation, setExpandedOperation] = useState(null);
   const [expanded, setExpanded] = useState(new Set(['add-credits']));
   const [storiesOpen, setStoriesOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const selected = useMemo(() => steps.find((step) => step.id === selectedId), [selectedId]);
   const focused = useMemo(() => steps.find((step) => step.id === focusId), [focusId]);
   const toggle = (id) => setExpanded((current) => { const next = new Set(current); next.has(id) ? next.delete(id) : next.add(id); return next; });
@@ -164,7 +173,8 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (event) => {
-      if (storiesOpen || event.metaKey || event.ctrlKey || event.altKey || ['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
+      if (event.key === 'Escape' && shortcutsOpen) { event.preventDefault(); setShortcutsOpen(false); return; }
+      if (storiesOpen || shortcutsOpen || event.metaKey || event.ctrlKey || event.altKey || ['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
       if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape'].includes(event.key)) return;
       event.preventDefault();
       if (!focused) {
@@ -191,10 +201,10 @@ function App() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [expanded, expandedOperation, focused, selectedId, selectedOperation, storiesOpen]);
+  }, [expanded, expandedOperation, focused, selectedId, selectedOperation, shortcutsOpen, storiesOpen]);
 
   return <div className="app-shell">
-    <NavigationRail onOpenStories={() => setStoriesOpen(true)}/>
+    <NavigationRail onOpenStories={() => setStoriesOpen(true)} onOpenShortcuts={() => setShortcutsOpen(true)}/>
     <main className="workspace" id="flow">
       <header className="topbar"><StoryTabs onOpenStories={() => setStoriesOpen(true)}/><button className="search-button"><Icon name="search"/><span>Ask about this codebase</span><kbd>⌘K</kbd></button></header>
       <CompactStoryHeader focusStep={focused} onBack={closeFocus}/>
@@ -205,6 +215,8 @@ function App() {
     </main>
     <StoriesPopover open={storiesOpen} onClose={() => setStoriesOpen(false)}/>
     {storiesOpen && <button className="popover-backdrop" aria-label="Close stories" onClick={() => setStoriesOpen(false)}/>}
+    <ShortcutModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/>
+    {shortcutsOpen && <button className="popover-backdrop" aria-label="Close keyboard shortcuts" onClick={() => setShortcutsOpen(false)}/>}
   </div>;
 }
 
