@@ -1,79 +1,78 @@
 # Storyline
 
-Storyline helps people see the story behind the code. It turns source code into understandable user stories and flows that show how a product behaves from a human and business perspective.
+Storyline helps people see the story behind the code. It turns source code into understandable product stories that connect an intended outcome to the steps and implementation that produce it.
 
-The primary visualization is the **user story**: a meaningful flow through the product, such as signing in, completing a payment, extracting information from a document, or searching for a result. Data structures, services, dependencies, and implementation details support that story rather than becoming the main experience.
+The primary visualization is a **Story**: a meaningful product flow such as signing in, completing a payment, extracting information from a document, or searching for a result. Data structures, services, dependencies, and source details support the Story instead of becoming the main experience.
 
 ## What we want to accomplish
 
 We want to make unfamiliar codebases easier to understand by helping a reader:
 
-- See the user story and the product behavior it represents first.
-- Follow the smallest useful explanation of a flow without starting at the system or data level.
-- Expand a behavior locally without losing the original mental model.
-- Distinguish the story’s progression from data dependencies and implementation calls.
+- Understand the purpose and outcome of a Story first.
+- Follow the smallest useful sequence of Steps without starting at the system or data level.
+- Expand a Step locally without losing the original Story.
+- Distinguish Story progression from data dependencies and implementation calls.
 - Inspect meaningful inputs, outputs, branches, and external boundaries.
-- Trace semantic behaviors back to functions, files, services, APIs, and queries when needed.
+- Trace each Step back to functions, files, services, APIs, and queries when needed.
 
-The guiding principle is: **represent code according to what it accomplishes, then reveal how it works only when more detail is useful.**
+The guiding principle is: **show what the product accomplishes, then reveal the implementation when more detail is useful.**
 
-## Core approach
+## Core model
 
-Storyline uses progressive disclosure around the user story:
+Storyline uses three clear levels:
 
-1. **User story:** What is the person trying to accomplish, and what happens from the product perspective?
-2. **Semantic operations:** What work is required inside a behavior?
-3. **Implementation/source:** How and where is the behavior implemented?
+1. **Story:** The complete product flow and intended outcome.
+2. **Step:** One meaningful event, action, decision, or outcome within the Story.
+3. **Implementation:** The code and systems that perform or support a Step.
 
-The default view should normally contain about 3–7 meaningful story steps. Groups are created only when several operations collectively produce a recognizable outcome. Dependencies are usually shown as metadata rather than arrows so that story progression does not imply a false causal relationship.
+A Story should normally contain about 3–7 meaningful Steps. Group work only when the group produces a recognizable outcome. Show dependencies as supporting context unless they are part of the Story progression.
 
 ## Example
 
 ```text
-User story: Confirm a completed payment
+Story: Confirm a completed payment
 
-Payment Completed
-→ Prepare Payment Confirmation
-→ Send Payment Confirmation
-→ Confirmation Sent
+Payment completed
+→ Prepare payment confirmation
+→ Send payment confirmation
+→ Confirmation sent
 ```
 
-Expanding one behavior reveals its semantic operations:
+Expanding a Step reveals its Implementation:
 
 ```text
-Prepare Payment Confirmation
-├ Match Payment to User
-├ Match Payment to Order
-├ Fetch Order Details
-└ Generate Payment Confirmation
+Prepare payment confirmation
+├ collectPurchaseDetails()
+├ formatConfirmation()
+└ queueMessage()
 ```
 
-Selecting a node can reveal its needs, outputs, alternatives, and source location without replacing the original node.
+Selecting a Step can reveal its inputs, outputs, branches, external systems, and source location without replacing the Story.
 
 ## Project guide
 
-The complete semantic representation and naming rules are documented in [semantic_behavior_graph_guide.md](semantic_behavior_graph_guide.md). The guide describes the model underneath Storyline; the product experience should lead with user stories rather than data or system diagrams.
+The complete representation and naming rules are documented in [semantic_behavior_graph_guide.md](semantic_behavior_graph_guide.md). The guide describes the model underneath Storyline. The product experience should lead with Stories instead of data or system diagrams.
 
 ## Visualization priorities
 
-1. **User stories and product flows** are the primary view.
-2. **Semantic behavior expansions** explain what happens inside a story step.
-3. **Data, system, and dependency views** provide supporting context when someone needs to investigate how the story is implemented.
+1. **Stories** provide purpose, context, and the complete flow.
+2. **Steps** explain the meaningful progression through a Story.
+3. **Implementation** connects each Step to code, systems, and source evidence.
 
 ## Current priorities
 
-- Define a reliable model for user stories, flows, behaviors, semantic operations, metadata, and implementation evidence.
-- Build an analyzer that reconstructs behavior before choosing graph labels or grouping.
-- Identify user-facing stories and connect them to the code paths that implement them.
-- Generate consistent labels using canonical semantic vocabulary.
-- Support independent disclosure of child operations, dependencies, branches, and source code.
-- Add quality checks for comprehension, grouping, semantic altitude, arrow meaning, uncertainty, and evidence grounding.
-- Test the approach against representative flows such as payments, document extraction, search, renewals, and authentication.
+- Define a reliable model for Stories, Steps, metadata, and Implementation evidence.
+- Build an analyzer that reconstructs product intent before it chooses labels or grouping.
+- Identify product Stories and connect their Steps to the code paths that implement them.
+- Generate clear Step labels with consistent grammar.
+- Support independent disclosure of dependencies, branches, and Implementation.
+- Add quality checks for comprehension, grouping, abstraction level, arrow meaning, uncertainty, and evidence grounding.
+- Test the approach against representative Stories such as payments, document extraction, search, renewals, and authentication.
 
 ## Non-goals
 
-This project is not intended to make a data model, system architecture diagram, or complete call graph the primary experience. It is also not intended to expose every local variable or replace source code with a simplified diagram. Storyline should remain human-centered, semantically useful, traceable, and honest about uncertainty.
+This project is not intended to make a data model, system architecture diagram, or complete call graph the primary experience. It is also not intended to expose every local variable or replace source code with a simplified diagram. Storyline should remain human-centered, useful, traceable, and honest about uncertainty.
 
 ## Status
 
-This repository currently contains the Storyline design guide and project framing. Implementation details, supported languages, and runtime architecture will be established as the project moves from specification into prototyping.
+This repository currently contains the Storyline design guide and a working interface prototype. Supported languages and runtime architecture will be established as the project moves from prototyping into implementation.

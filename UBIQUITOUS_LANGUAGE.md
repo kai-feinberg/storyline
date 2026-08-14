@@ -1,89 +1,95 @@
 # Ubiquitous Language
 
-Storyline uses a three-layer model for moving from product meaning to source evidence:
+Storyline uses one stable three-level model:
 
-**Product Story → Behavior → Implementation Trace**
+**Story → Step → Implementation**
 
-## Product-story model
+These terms name the levels. Questions such as “why,” “what,” and “how” can help explain content, but they are not level names because they can apply at every level.
 
-| Term | Definition | Aliases to avoid |
-| --- | --- | --- |
-| **Product Story** | A user-meaningful flow that describes what the product accomplishes from trigger to outcome. | Flow, journey, use case |
-| **Story Path** | The ordered sequence of Story Steps currently being followed through a Product Story. | Main flow, happy path, route |
-| **Story Step** | One meaningful unit in a Story Path, classified as an Event, Behavior, or Outcome. | Node, card, block, item |
-| **Event** | A fact that provides the trigger or context for subsequent work in a Product Story. | Trigger step, start node |
-| **Behavior** | A meaningful product capability that transforms inputs into an outcome and may contain Semantic Operations. | Process, action, service step |
-| **Outcome** | A product- or user-visible state established by completing a Story Path. | End node, result step |
-| **Branch** | An alternate Story Path that diverges from a specific Story Step under a stated condition. | Fork, alternative flow |
-
-## Behavior model
+## Core model
 
 | Term | Definition | Aliases to avoid |
 | --- | --- | --- |
-| **Semantic Operation** | One meaningful unit of internal work within a Behavior, named by the result it contributes. | Sub-step, child node, task |
-| **Behavior Input** | Information or state required before a Behavior can begin. | Dependency, parameter |
-| **Behavior Output** | Information or state established when a Behavior completes. | Result, return value |
-| **Operation Input** | Information or state consumed by one Semantic Operation. | Argument, requirement |
-| **Operation Output** | Information or state produced by one Semantic Operation. | Return, result |
-| **Execution Context** | The service, external system, job, or runtime boundary responsible for a Story Step. | System, owner, component |
+| **Story** | A product flow from a meaningful start to an intended outcome. It gives the reader purpose and context. | Product Story, Flow Context, journey, use case |
+| **Story Path** | The ordered route currently followed through a Story. | Main flow, happy path, route |
+| **Step** | One meaningful event, action, decision, or outcome within a Story Path. | Story Step, behavior, semantic operation, node, card |
+| **Event** | A Step that provides a trigger or new fact. | Trigger node, start node |
+| **Action** | A Step that changes or produces something meaningful in the product domain. | Behavior, process, operation |
+| **Decision** | A Step that selects the next Story Path under a stated condition. | Branch node, fork |
+| **Outcome** | A Step that establishes a product- or user-visible result. | End node, result step |
+| **Branch** | An alternate Story Path that leaves a Step under a stated condition. | Fork, alternative flow |
+
+## Step context
+
+| Term | Definition | Aliases to avoid |
+| --- | --- | --- |
+| **Step Input** | Information or state required before a Step can begin. | Parameter, argument |
+| **Step Output** | Information or state established when a Step completes. | Return value |
+| **Execution Context** | The service, job, external system, or runtime boundary responsible for a Step. | System, owner, component |
+| **Dependency** | Supporting information or capability required by a Step but not part of Story progression. | Edge, arrow, relationship |
+| **External Boundary** | A service, API, queue, storage system, or model provider crossed by a Step or Implementation Call. | Integration, external service |
 
 ## Implementation evidence
 
 | Term | Definition | Aliases to avoid |
 | --- | --- | --- |
-| **Implementation Trace** | An evidence-grounded sequence of source-level calls that supports one Semantic Operation. | Call graph, technical details, internals |
-| **Implementation Call** | One function, method, query, API call, or message send within an Implementation Trace, paired with a plain-language description of what it does in this flow. | Function node, code step |
-| **Source Trace** | A direct pointer from a semantic concept to the source location that supports it. | Link, citation, file chip |
-| **Source Evidence** | The code, query, configuration, or external boundary used to justify a Storyline representation. | Proof, source detail |
-| **Dependency** | Supporting information or capability required by a concept but not part of the Story Path’s progression. | Edge, arrow, relationship |
+| **Implementation** | The code and systems that perform or support one Step. | Behavior Layer, technical details, internals |
+| **Implementation Trace** | An evidence-grounded sequence of source-level calls for one Step. | Call graph, code path |
+| **Implementation Call** | One function, method, query, API call, or message send in an Implementation Trace, with a plain-language description of its role. | Function node, code step |
+| **Source Trace** | A direct pointer from a Story or Step to the source location that supports it. | Link, citation, file chip |
+| **Source Evidence** | Code, queries, configuration, or external boundaries that justify a Storyline representation. | Proof, source detail |
 
 ## Interface concepts
 
 | Term | Definition | Aliases to avoid |
 | --- | --- | --- |
-| **Story Layer** | The interface layer that presents a Product Story as a Story Path. | Top level, overview page |
-| **Behavior Layer** | The interface layer that decomposes one Behavior into Semantic Operations. | Deep view, second level, detail page |
-| **Implementation Layer** | The expandable interface layer that presents an Implementation Trace for one Semantic Operation. | Dropdown, code details, third level |
-| **Context Panel** | The right-edge surface that describes the currently selected concept’s inputs, outputs, and Source Trace. | Sidebar, inspector, details panel |
-| **Navigation Rail** | The narrow global control surface for moving among major Storyline destinations. | Sidebar, left nav |
-| **Story Tab** | A persistent tab representing one open Product Story. | Page tab, flow tab |
-| **Story Picker** | The searchable selector used to find and open Product Stories. | Dropdown, story searchbar |
-| **Selection** | The concept currently targeted by keyboard or pointer navigation. | Focus, active node |
-| **Expansion** | The disclosure of a selected concept’s immediate child layer without changing its meaning. | Dropdown, open state |
+| **Story View** | The central workspace that keeps the Story and its ordered Steps visible. | Story Layer, overview page |
+| **Step Expansion** | Inline disclosure of one Step’s context and Implementation. | Behavior Layer, child layer |
+| **Implementation View** | The detailed Implementation for one Step, shown inline or in full-screen focus. | Implementation Layer, code page |
+| **Context Panel** | A supporting surface that describes the selected Story, Step, or Implementation item. | Details page |
+| **Navigation Rail** | The narrow global control surface for major Storyline destinations. | Sidebar, left nav |
+| **Story Tab** | A persistent tab for one open Story. | Page tab, flow tab |
+| **Story Picker** | The searchable selector used to find and open Stories. | Dropdown, story search bar |
+| **Selection** | The item currently targeted by keyboard or pointer navigation. | Active node |
+| **Expansion** | Disclosure of more information without leaving the Story View. | Dropdown, open state |
+| **Focus Mode** | A full-screen view of one expanded Step and its Implementation. | Separate layer, detail page |
 
 ## Relationships
 
-- A **Product Story** contains one or more **Story Paths**.
-- A **Story Path** contains three or more ordered **Story Steps**.
-- A **Story Step** is exactly one **Event**, **Behavior**, or **Outcome**.
-- A **Behavior** consumes **Behavior Inputs**, produces **Behavior Outputs**, and contains zero or more **Semantic Operations**.
-- A **Semantic Operation** may have one **Implementation Trace**.
-- An **Implementation Trace** contains one or more ordered **Implementation Calls** and one or more pieces of **Source Evidence**.
-- A **Source Trace** connects a **Story Step**, **Behavior**, or **Semantic Operation** to its supporting **Source Evidence**.
-- The **Context Panel** describes the current **Selection**; **Expansion** reveals its immediate child layer.
+- A **Story** contains one or more **Story Paths**.
+- A **Story Path** contains three or more ordered **Steps** when the evidence supports that detail.
+- A **Step** is an **Event**, **Action**, **Decision**, or **Outcome**.
+- A **Step** can consume **Step Inputs** and produce **Step Outputs**.
+- A **Step** can have one **Implementation**.
+- An **Implementation Trace** contains ordered **Implementation Calls** and **Source Evidence**.
+- A **Step** or **Implementation Call** can cross an **External Boundary**.
+- A **Source Trace** connects a Story, Step, or Implementation Call to its supporting Source Evidence.
+- A **Step Expansion** keeps the parent Story visible.
+- **Focus Mode** can enlarge a Step without changing its place in the Story.
 
 ## Navigation language
 
-- **Move** changes the Selection within the current layer (`↑` and `↓`).
-- **Go deeper** enters the selected concept’s child layer (`→`).
-- **Go back** returns to the parent layer or contracts the current Expansion (`←`).
-- **Expand** or **contract** toggles inline disclosure without changing layers (`Enter`).
+- **Move** changes the Selection within the current Story (`↑` and `↓`).
+- **Expand** reveals the selected Step’s Implementation (`Enter` or `→`).
+- **Contract** hides the selected Step’s Implementation (`Enter` or `←`).
+- **Focus** enlarges an expanded Step to full screen.
+- **Exit focus** returns to the same Step and scroll position in the Story.
 
 ## Example dialogue
 
-> **Developer:** “In the **Purchase credits Product Story**, which **Story Step** determines the account owner?”
+> **Developer:** “In the **Extract PDF batch Story**, which **Step** waits for the document work?”
 
-> **Domain expert:** “The **Match payment to user Behavior** does. Enter its **Behavior Layer** to see the three **Semantic Operations**.”
+> **Domain expert:** “The **Merge extraction results Step** does. Expand it to inspect its **Implementation**.”
 
-> **Developer:** “The **Find candidate accounts Semantic Operation** looks important. What actually runs?”
+> **Developer:** “Which calls coordinate the wait and failure handling?”
 
-> **Domain expert:** “Expand its **Implementation Layer**. The **Implementation Trace** shows the repository lookup, account filtering, and match ranking, with a **Source Trace** back to the supporting code.”
+> **Domain expert:** “The **Implementation Trace** shows the async barrier, failure classification, and normalized results, with a **Source Trace** to the supporting code.”
 
-## Flagged ambiguities
+## Naming rules
 
-- **Flow** has been used for both an entire user-meaningful scenario and one route through it. Use **Product Story** for the scenario and **Story Path** for its ordered route.
-- **Step** can refer to both product behavior and internal work. Use **Story Step** at the Story Layer and **Semantic Operation** at the Behavior Layer.
-- **Node** hides semantic altitude. Use **Story Step**, **Semantic Operation**, or **Implementation Call** according to the layer.
-- **Details** can mean context, decomposition, or source code. Use **Context Panel**, **Behavior Layer**, or **Implementation Trace** specifically.
-- **System** can mean an execution boundary, a product area, or the entire codebase. Use **Execution Context** for the boundary responsible for a Story Step.
-- **Input** and **output** must be qualified when the layer matters: **Behavior Input/Output** or **Operation Input/Output**.
+- Use **Story**, **Step**, and **Implementation** as the only level names.
+- Use **Event**, **Action**, **Decision**, and **Outcome** only as Step types.
+- Use **Step** for product or domain meaning. Use **Implementation Call** for source-level work.
+- Avoid **behavior**, **semantic operation**, and numbered depth labels in product text.
+- Qualify inputs and outputs as **Step Input** and **Step Output** when the level is unclear.
+- Use **Execution Context** for the boundary responsible for a Step.

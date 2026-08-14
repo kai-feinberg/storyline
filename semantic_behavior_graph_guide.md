@@ -1,31 +1,31 @@
-# Storyline: Semantic Behavior Guide for Code Understanding
+# Storyline: Story, Step, and Implementation Guide
 
 > Represent code according to what it accomplishes, then reveal how it works only when the user asks for more detail.
 
-Storyline presents the story behind the code. Its primary visualization is the user story or product flow; semantic behaviors, dependencies, and implementation details are supporting layers revealed as needed.
+Storyline presents the story behind the code. Its primary visualization is a Story with ordered Steps. Dependencies and Implementation are supporting information revealed as needed.
 
-The goal is to minimize cognitive overhead while helping a reader build a stable mental model of a system. The graph should begin with the smallest useful explanation of a flow and progressively reveal semantic operations, dependencies, exceptions, and implementation without forcing the user to reconstruct relationships or click through arbitrary abstraction layers.
+The goal is to minimize cognitive overhead while helping a reader build a stable mental model of a system. Start with the smallest useful Story, then reveal Step context, dependencies, exceptions, and Implementation without making the reader change pages or reconstruct relationships.
 
 ## 1. Design goals
 
-- Optimize for comprehension, not completeness. The default graph should show the fewest nodes needed to explain the behavior accurately.
+- Optimize for comprehension, not completeness. The default Story should show the fewest Steps needed to explain the flow accurately.
 - Preserve a stable mental model. Expansion should add detail to something the user already understands rather than replacing it with a different graph.
-- Progressively disclose complexity by question: what happens, what is inside this behavior, what does it need, what can go wrong, and where is it implemented.
-- Describe semantic effect before mechanism. Prefer “Fetch User by Email” over “Execute SELECT query.”
+- Progressively disclose complexity by question: what happens, what does this Step need, what can go wrong, and where is it implemented.
+- Describe the product or domain effect before the mechanism. Prefer “Fetch user by email” over “Execute SELECT query.”
 - Use predictable grammar so readers recognize patterns instead of repeatedly decoding wording.
 - Keep sibling nodes at roughly the same abstraction level.
 - Avoid making the main graph carry every dependency. Sequence and dependency are different concepts and should not be conflated.
 
 ## 2. Core representation model
 
-The primary unit is a **behavior**, not an isolated action. A behavior may contain smaller behaviors or semantic operations, allowing the graph to be recursively understandable.
+The primary unit is a **Story**. A Story contains ordered **Steps**, and each Step can reveal its **Implementation**.
 
-### Flow context is not a click-through layer
+### The Story supplies context
 
-A product may already organize the system into distinct flows such as “Payment Confirmation,” “Document Extraction,” or “User Login.” That flow name supplies the highest-level context. It should usually appear in navigation, a breadcrumb, page title, or flow selector rather than as another node the user must expand.
+A product may already organize the system into distinct Stories such as “Payment confirmation,” “Document extraction,” or “User login.” Show the Story name in navigation, a breadcrumb, a page title, or a selector. Do not make it another Step that the reader must expand.
 
 ```text
-Flow: Payment Confirmation
+Story: Payment confirmation
 Payment Completed
 → Prepare Payment Confirmation
 → Send Payment Confirmation
@@ -34,9 +34,9 @@ Payment Completed
 
 The default canvas starts at the first level that is actually explanatory.
 
-### Three working depths
+### Three stable levels
 
-Depth is relative to the selected behavior, not a rigid global hierarchy. A complex behavior can contain another meaningful behavior before reaching atomic operations. The AI should prioritize semantic coherence over forcing every flow into exactly three literal nesting levels.
+Use **Story → Step → Implementation** as the stable hierarchy. Event, Action, Decision, and Outcome are Step types. Do not add a separate level for internal actions. If a Step contains several meaningful source operations, show them as part of that Step's Implementation.
 
 ### Optional overview context
 
@@ -49,7 +49,7 @@ payment received → confirmation prepared → confirmation delivered
 
 ## 3. Progressive disclosure model
 
-Progressive disclosure should reveal different dimensions of complexity independently. A user may want dependencies or code without expanding every semantic child.
+Progressive disclosure should reveal different dimensions independently. A user may want dependencies or code without opening every Step.
 
 The original node remains the anchor as detail is revealed:
 
@@ -60,22 +60,20 @@ Selected:
 Needs: User, Order, Payment
 Produces: Payment Confirmation
 
-Expanded:
-→ Fetch Purchased Items
-→ Fetch Payment Amount
-→ Fetch Receipt URL
-→ Add Payment Details to Confirmation
-
 Implementation:
+→ fetchPurchasedItems()
+→ fetchPaymentAmount()
+→ fetchReceiptUrl()
+→ addPaymentDetails()
 generatePaymentConfirmation()
 payment-confirmation.ts:42-91
 ```
 
 ## 4. Graph semantics: what arrows mean
 
-In the main behavior graph, an arrow means behavioral progression: “this meaningfully follows from” or “is the next part of this flow.” It does not automatically mean data dependency, argument passing, database relation, or implementation call.
+In the Story, an arrow means progression: “this meaningfully follows from” or “is the next Step in this Story.” It does not automatically mean data dependency, argument passing, database relation, or implementation call.
 
-Do not imply false dependencies. If multiple behaviors independently depend on the same input, expose that relationship as node metadata rather than forcing it into the sequence.
+Do not imply false dependencies. If multiple Steps independently depend on the same input, expose that relationship as metadata rather than forcing it into the sequence.
 
 ### When to show dependency edges
 
@@ -84,9 +82,9 @@ Do not imply false dependencies. If multiple behaviors independently depend on t
 - Prefer node metadata for ordinary inputs and outputs.
 - If dependency edges are shown, distinguish them visually from behavioral progression edges.
 
-## 5. Choosing the default behavioral view
+## 5. Choosing the default Story view
 
-The default view should be the smallest representation that accurately explains the behavior—not the shortest summary and not an enumeration of every operation.
+The default view should be the smallest representation that accurately explains the Story—not the shortest summary and not a list of every source operation.
 
 ### Default grouping rule
 
@@ -101,18 +99,18 @@ Generate Confirmation
 → Prepare Payment Confirmation
 ```
 
-Expanding the parent reveals the steps.
+Expanding the Step reveals its Implementation.
 
 ### Target complexity
 
 - Aim for roughly 3–7 meaningful nodes in the default view when possible.
-- If a flow has 10+ equally visible steps, look for meaningful behavioral groups.
+- If a Story has 10+ equally visible Steps, look for meaningful groups.
 - Do not create groups solely to hit a node count.
 - Do not hide a critical decision, boundary, or state transition merely to make the graph smaller.
 
-### Semantic altitude rule
+### Abstraction-level rule
 
-Sibling nodes should describe behavior at comparable abstraction levels. Prefer:
+Sibling Steps should describe work at comparable abstraction levels. Prefer:
 
 ```text
 Payment Completed
@@ -120,7 +118,7 @@ Payment Completed
 → Send Payment Confirmation
 ```
 
-Then expand “Prepare Payment Confirmation” to reveal lower-level retrieval operations.
+Then expand “Prepare payment confirmation” to reveal its Implementation.
 
 ## 6. Naming grammar
 
@@ -215,33 +213,33 @@ Failure
 
 ## 10. Implementation disclosure
 
-Implementation details should answer “where/how is this implemented?” after the semantic behavior is understood. Depth 3 may include function or method names, files and line ranges, services, external APIs, database queries, queues, jobs, events, and relevant source snippets. Preserve the semantic node as the parent anchor.
+Implementation should answer “where and how does this Step run?” after the Step is understood. It may include function or method names, files and line ranges, services, external APIs, database queries, queues, jobs, events, and relevant source snippets. Preserve the Step as the parent anchor.
 
 ## 11. AI generation logic
 
 The AI should build the representation in two passes.
 
-### Pass A — Build the semantic model
+### Pass A — Build the Story model
 
 1. Identify the flow boundary, trigger/start condition, and intended outcome.
 2. Identify meaningful domain objects.
-3. Extract candidate semantic operations from the code and translate mechanisms into effects.
+3. Extract candidate Steps from the code and translate mechanisms into product or domain effects.
 4. Identify inputs and outputs, recording dependencies separately from visual sequence.
 5. Identify decisions, branches, external boundaries, state changes, and outcomes.
-6. Map implementation evidence to each semantic operation.
+6. Map Implementation evidence to each Step.
 
 ### Pass B — Construct the progressive representation
 
-1. Choose the smallest default behavioral view that accurately explains the flow.
-2. Group operations that produce one recognizable outcome.
-3. Check semantic altitude among siblings.
+1. Choose the smallest default Story that accurately explains the flow.
+2. Group work into Steps that produce recognizable outcomes.
+3. Check the abstraction level among sibling Steps.
 4. Keep the dominant progression graph simple.
 5. Attach inputs, outputs, branches, external systems, and implementation as progressive metadata.
-6. Generate child expansions for meaningful internal work.
+6. Generate an Implementation expansion for each supported Step.
 7. Validate labels against the naming grammar and vocabulary rules.
 8. Stop expanding when additional detail primarily exposes implementation.
 
-Create a parent behavior only when its children achieve one recognizable outcome, its label is meaningful, it substitutes cleanly in the surrounding flow, the children are at a lower semantic altitude, and grouping reduces cognitive load. Do not group when it hides a major decision or boundary, separates business outcomes the user needs, requires a vague label, or forces expansion just to understand the basic flow.
+Create a Step group only when the grouped work achieves one recognizable outcome, its label is meaningful, it fits cleanly in the Story, and grouping reduces cognitive load. Do not group when it hides a major decision or boundary, separates outcomes the user needs, requires a vague label, or forces expansion just to understand the basic flow.
 
 ### Uncertainty rules
 
@@ -261,18 +259,18 @@ Before presenting a generated graph, check:
 | Node necessity | Does every default node add meaningful understanding? |
 | Grouping | Could adjacent nodes be replaced by one recognizable parent? |
 | Over-grouping | Would a parent hide the basic flow? |
-| Semantic altitude | Are siblings at comparable abstraction levels? |
+| Abstraction level | Are sibling Steps at comparable abstraction levels? |
 | Arrow meaning | Could progression be mistaken for dependency? |
 | Grammar | Does each action read as Verb + primary object + qualifier? |
-| Specificity | Are vague labels used where a semantic label is available? |
+| Specificity | Are vague labels used where a precise domain label is available? |
 | Implementation leakage | Are code details appearing before they are needed? |
-| Inputs/outputs | Can multi-input behaviors reveal what they need and produce? |
+| Inputs/outputs | Can Steps reveal what they need and produce? |
 | Branches | Are important decisions represented without letting rare failures dominate? |
 | Evidence | Can each node be traced to implementation evidence? |
 
 ## 13. Worked example: payment confirmation
 
-### Default behavioral view
+### Default Story view
 
 ```text
 Payments / Payment Confirmation
@@ -376,19 +374,19 @@ Authenticate User
 
 ## 15. Minimum standard
 
-A generated behavior graph is acceptable only if:
+A generated Story is acceptable only if:
 
 - The flow has clear context, a meaningful start, and an understandable outcome.
 - The default view explains what happens without arbitrary expansion.
-- Behavioral progression is not confused with data dependency.
+- Story progression is not confused with data dependency.
 - Inputs, outputs, branches, and implementation can be revealed independently.
-- Sibling nodes remain at comparable semantic altitude.
+- Sibling Steps remain at comparable abstraction levels.
 - Parents represent recognizable outcomes rather than generic containers.
-- Labels follow predictable semantic grammar.
+- Step labels follow predictable grammar.
 - Canonical vocabulary is used for common mechanics while clearer domain verbs remain allowed.
 - Implementation detail is traceable but progressively disclosed.
-- Every semantic claim is grounded in the underlying code or other source material.
+- Every product or domain claim is grounded in the underlying code or other source material.
 
 ## Final design principle
 
-Standardize grammar, representation rules, and disclosure behavior more aggressively than exact vocabulary. A user should understand a flow in the default view, expand only the behavior they care about, inspect dependencies without visual clutter, and reach source code without losing the mental model they started with.
+Standardize grammar, representation rules, and disclosure more strongly than exact vocabulary. A user should understand a Story in the default view, expand only the Step they care about, inspect dependencies without visual clutter, and reach source code without losing the mental model they started with.
