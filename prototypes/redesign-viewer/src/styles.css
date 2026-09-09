@@ -587,11 +587,6 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .field-change-pill code { color: inherit; font: inherit; }
 .field-change-pill::after { content: attr(data-tooltip); position: absolute; z-index: 8; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(280px, 72vw); padding: 8px 10px; border-radius: 8px; background: #17303b; color: #f7fbf9; box-shadow: 0 8px 24px rgba(30, 39, 36, .18); font: 500 11px/1.45 'Inter', sans-serif; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity .15s ease, transform .15s ease; }
 .field-change-pill:hover::after, .field-change-pill:focus-visible::after { opacity: 1; transform: translateY(0); }
-.input-origin-pills { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.input-origin-pill { position: relative; min-height: 24px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #dbe5e1; border-radius: 999px; background: #f7faf8; color: #5c7069; font: 600 9px 'Source Code Pro', monospace; cursor: help; }
-.input-origin-pill code { color: inherit; font: inherit; }
-.input-origin-pill::after { content: attr(data-tooltip); position: absolute; z-index: 8; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(280px, 72vw); padding: 8px 10px; border-radius: 8px; background: #17303b; color: #f7fbf9; box-shadow: 0 8px 24px rgba(30, 39, 36, .18); font: 500 11px/1.45 'Inter', sans-serif; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity .15s ease, transform .15s ease; }
-.input-origin-pill:hover::after { opacity: 1; transform: translateY(0); }
 .show-schema-fields { min-height: 36px; margin-top: 8px; padding: 0 9px; border-radius: 8px; background: var(--paper); color: var(--mint-dark); font-size: 12px; font-weight: 700; }
 .linked-schema { grid-column: 1 / -1; margin-top: 6px; border-radius: 9px; background: rgba(216, 238, 230, .45); }
 .linked-schema > summary { min-height: 38px; padding: 0 10px; display: flex; align-items: center; gap: 6px; list-style: none; color: var(--mint-dark); font-size: 12px; font-weight: 700; cursor: pointer; }
@@ -683,6 +678,37 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .stage-schema-popover { position: absolute; z-index: 12; top: calc(100% + 7px); right: 0; width: min(430px, 72vw); max-height: 320px; padding: 12px; overflow: auto; border: 1px solid #d8e5df; border-radius: 10px; background: var(--paper); box-shadow: 0 14px 34px rgba(42, 52, 48, .14); }
 .stage-schema-popover .schema-fields { margin: 0; }
 
+/* Stable Story Step header; expansion only reveals content below */
+.step-main { min-height: 0; padding: 16px 22px 17px; }
+.step-main strong { margin-top: 7px; padding-right: 140px; }
+.step-summary { max-width: 62ch; margin-top: 4px; font-size: 12px; line-height: 1.42; }
+.step-toggle-label { top: 49px; right: 20px; bottom: auto; }
+.step-system { font-size: 10px; }
+.route-stop.expanded .step-details { border-top-color: #d4e3dd; }
+.route-stop.expanded .step-detail-section { padding: 14px 18px 15px; }
+.route-stop.expanded .step-detail-heading { min-height: 25px; align-items: center; }
+.route-stop.expanded .step-detail-heading span, .route-stop.expanded .pseudocode-head strong { font-size: 13px; }
+.no-field-changes { margin-left: 0 !important; padding: 3px 7px; border-radius: 999px; background: #e7f1ed; color: #3d685c !important; font-size: 9px !important; font-weight: 700; }
+.route-stop.expanded .boundary-schema-grid { margin-top: 9px; grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr); gap: 9px; align-items: stretch; }
+.boundary-arrow { position: relative; display: grid; place-items: center; color: #2f6b5c; }
+.boundary-arrow::before { content: ''; position: absolute; width: 28px; height: 1px; background: #b8d2c8; }
+.boundary-arrow .icon { position: relative; z-index: 1; padding: 3px; box-sizing: content-box; border-radius: 50%; background: var(--mint-soft); }
+.route-stop.expanded .boundary-schema-card { border-color: #ccddd6; border-radius: 10px; }
+.route-stop.expanded .boundary-schema-card > header { min-height: 34px; padding: 8px 13px 2px; }
+.route-stop.expanded .boundary-schema-card > header span { font-size: 10px; }
+.route-stop.expanded .boundary-schema-card.output > header span { color: #276454; }
+.route-stop.expanded .boundary-schema-card > header small { font-size: 9px; }
+.route-stop.expanded .boundary-schema-card > .schema-fields { padding: 0 13px 7px; }
+.route-stop.expanded .boundary-schema-card .schema-field { padding: 5px 0; }
+.route-stop.expanded .boundary-schema-card .schema-field > code { font-size: 11px; }
+.route-stop.expanded .boundary-schema-card .schema-field > span { font-size: 10px; }
+.route-stop.expanded .boundary-schema-card .schema-field p { margin-top: 3px; font-size: 10.5px; line-height: 1.38; }
+.route-stop.expanded .boundary-schema-card .schema-field em { padding: 2px 5px; background: #d9ebe4; color: #275e50; font-size: 8px; }
+.route-stop.expanded .logic-section { padding-top: 13px; }
+.route-stop.expanded .pseudocode pre { margin-top: 8px; padding: 11px 13px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .58); font-size: 11px; line-height: 1.62; }
+.route-stop.expanded .open-detail-button { min-height: 28px; margin-top: 7px; padding: 0; border: 0; background: transparent; box-shadow: none; font-size: 10px; }
+.route-stop.expanded .open-detail-button:hover { background: transparent; color: var(--coral-dark); }
+
 @media (max-width: 720px) {
   .boundary-schema-grid, .modal-schema-grid { grid-template-columns: 1fr; }
   .boundary-schema-grid > .icon { margin: 0 auto; transform: rotate(90deg); }
@@ -701,4 +727,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
   .data-stage-heading { position: relative; padding-right: 82px; }
   .stage-schema-menu { position: absolute; top: 0; right: 0; }
   .stage-schema-popover { width: min(360px, calc(100vw - 78px)); }
+  .step-main strong { padding-right: 0; }
+  .step-toggle-label { position: static; grid-column: 1 / -1; margin-top: 10px; justify-self: end; }
+  .route-stop.expanded .boundary-schema-grid { grid-template-columns: 1fr; }
+  .boundary-arrow { min-height: 24px; transform: rotate(90deg); }
 }
