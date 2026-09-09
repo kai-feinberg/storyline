@@ -1,0 +1,41 @@
+{
+  "globalEnv": ["DATABASE_URL", "BETTER_AUTH_SECRET"],
+  "globalPassThroughEnv": [
+    "NEON_*",
+    "VITE_NEON_AUTH_URL",
+    "POSTGRES_*",
+    "PGHOST",
+    "PGHOST_UNPOOLED",
+    "PGDATABASE",
+    "PGUSER",
+    "PGPASSWORD",
+    "DATABASE_URL_UNPOOLED",
+    "BETTER_AUTH_URL",
+    "OPENROUTER_API_KEY",
+    "ELEVENLABS_API_KEY"
+  ],
+  "tasks": {
+    "bundle": {
+      "outputs": [".remotion/**"]
+    },
+    "build": {
+      "dependsOn": ["bundle"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["BLOB_READ_WRITE_TOKEN", "DATABASE_URL", "BETTER_AUTH_SECRET"]
+    },
+    "create-snapshot": {
+      "dependsOn": ["bundle"],
+      "env": [
+        "BLOB_READ_WRITE_TOKEN",
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "VERCEL",
+        "VERCEL_ENV",
+        "VERCEL_URL",
+        "VERCEL_DEPLOYMENT_ID",
+        "VERCEL_OIDC_TOKEN"
+      ]
+    }
+  },
+  "dangerouslyDisablePackageManagerCheck": true
+}

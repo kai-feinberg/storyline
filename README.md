@@ -49,9 +49,11 @@ Prepare payment confirmation
 
 Selecting a Step can reveal its inputs, outputs, branches, external systems, and source location without replacing the Story.
 
-## Project guide
+## Start here
 
-The complete representation and naming rules are documented in [semantic_behavior_graph_guide.md](semantic_behavior_graph_guide.md). The guide describes the model underneath Storyline. The product experience should lead with Stories instead of data or system diagrams.
+Read [How Storyline Works](docs/how-storyline-works.md) for the repository layout, command flow, generated files, agent review step, viewer server, and current limitations.
+
+The agent method for selecting and shaping Stories is in the [Storyline Guidelines](plugins/storyline/skills/storyline-generate/references/storyline-guidelines.md). The canonical product terms are in the [Storyline Ubiquitous Language](docs/product/ubiquitous-language.md).
 
 ## Visualization priorities
 
@@ -75,4 +77,44 @@ This project is not intended to make a data model, system architecture diagram, 
 
 ## Status
 
-This repository currently contains the Storyline design guide and a working interface prototype. Supported languages and runtime architecture will be established as the project moves from prototyping into implementation.
+The installable implementation lives in [`plugins/storyline`](plugins/storyline). It includes one end-to-end orchestration skill, two specialist skills, artifact validation, tests, and a bundled local viewer. Agents perform repository understanding and artifact generation directly from source.
+
+For normal use, give the agent one request:
+
+```text
+Use Storyline to create and open a visualization of this repository.
+```
+
+This invokes `$storyline-create`, which initializes the workspace, runs understanding and generation as needed, validates the artifact, and opens the viewer.
+
+Use the specialist skills only when you want manual control over one phase:
+
+```text
+$storyline-understand
+$storyline-generate
+```
+
+You can also open an existing validated artifact directly:
+
+```bash
+node plugins/storyline/scripts/storyline.mjs open examples/storysketch
+```
+
+## Viewer development
+
+The editable viewer source is in `prototypes/redesign-viewer/`. The plugin runs the compiled copy in `plugins/storyline/assets/viewer/`.
+
+Start Vite while changing the interface:
+
+```bash
+pnpm --dir prototypes/redesign-viewer dev
+```
+
+After a UI change, rebuild and publish the viewer into the plugin:
+
+```bash
+pnpm --dir plugins/storyline build:viewer
+pnpm --dir plugins/storyline test
+```
+
+The build command replaces old hashed assets. Commit the prototype source and the rebuilt plugin assets together.

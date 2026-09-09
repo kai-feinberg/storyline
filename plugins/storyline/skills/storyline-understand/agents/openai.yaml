@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storyline Understand"
+  short_description: "Trace product behavior and evidence in a repository."
+  default_prompt: "Use $storyline-understand to learn this repository, trace its important product behaviors, and create an evidence-backed Repository Understanding."

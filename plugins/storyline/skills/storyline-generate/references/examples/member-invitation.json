@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "storyline.visualization",
+  "metadata": { "visualizationUpdatedAt": "2026-08-16T12:00:00.000Z", "sourceFingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "gitCommit": null, "gitDirty": null },
+  "project": { "id": "project:team-console", "name": "Team Console", "summary": "Manages workspace members and access." },
+  "domains": [{ "id": "domain:access-management", "name": "Access management", "summary": "Controls who can join a workspace.", "storyIds": ["story:invite-member"], "status": "confirmed", "evidenceIds": ["evidence:invite-handler"] }],
+  "stories": [{ "id": "story:invite-member", "domainId": "domain:access-management", "group": "Access management", "title": "Invite a workspace member", "summary": "Create and send access for a new workspace member.", "system": "Team Console", "status": "confirmed", "pathIds": ["path:invite-member:default"], "evidenceIds": ["evidence:invite-handler", "evidence:mailer"] }],
+  "storyPaths": [{ "id": "path:invite-member:default", "storyId": "story:invite-member", "title": "Default path", "stepIds": ["step:invitation-submitted", "step:check-membership", "step:create-invitation", "step:send-invitation", "step:invitation-sent"], "startStepId": "step:invitation-submitted", "endStepId": "step:invitation-sent" }],
+  "steps": [
+    { "id": "step:invitation-submitted", "pathId": "path:invite-member:default", "order": 1, "kind": "event", "title": "Invitation submitted", "summary": "An administrator asks to invite a person to the workspace.", "system": "Team API", "status": "confirmed", "evidenceIds": ["evidence:invite-handler"] },
+    { "id": "step:check-membership", "pathId": "path:invite-member:default", "order": 2, "kind": "decision", "title": "Invitation allowed?", "summary": "The service checks permission and existing membership before it creates access.", "system": "Team service", "status": "confirmed", "implementationId": "implementation:check-membership", "evidenceIds": ["evidence:invite-handler"] },
+    { "id": "step:create-invitation", "pathId": "path:invite-member:default", "order": 3, "kind": "action", "title": "Create member invitation", "summary": "The service creates a time-limited invitation for the workspace.", "system": "Team service", "status": "confirmed", "implementationId": "implementation:create-invitation", "evidenceIds": ["evidence:invitation-store"] },
+    { "id": "step:send-invitation", "pathId": "path:invite-member:default", "order": 4, "kind": "action", "title": "Send member invitation", "summary": "The service sends the invitation to the requested email address.", "system": "Email service", "status": "confirmed", "implementationId": "implementation:send-invitation", "evidenceIds": ["evidence:mailer"] },
+    { "id": "step:invitation-sent", "pathId": "path:invite-member:default", "order": 5, "kind": "outcome", "title": "Member invitation sent", "summary": "The person can use the invitation to join the workspace.", "system": "Team Console", "status": "confirmed", "evidenceIds": ["evidence:mailer"] }
+  ],
+  "implementations": [
+    { "id": "implementation:check-membership", "stepId": "step:check-membership", "summary": "Check administrator permission and existing membership.", "needs": "Administrator, workspace, and invitee email", "produces": "Invitation eligibility", "callIds": ["call:find-membership"], "evidenceIds": ["evidence:invite-handler"] },
+    { "id": "implementation:create-invitation", "stepId": "step:create-invitation", "summary": "Create an invitation record with an expiry.", "needs": "Eligible email and workspace", "produces": "Pending invitation", "callIds": ["call:insert-invitation"], "evidenceIds": ["evidence:invitation-store"] },
+    { "id": "implementation:send-invitation", "stepId": "step:send-invitation", "summary": "Deliver the invitation through the configured email provider.", "needs": "Pending invitation", "produces": "Invitation delivery", "callIds": ["call:send-invitation-email"], "evidenceIds": ["evidence:mailer"] }
+  ],
+  "calls": [
+    { "id": "call:find-membership", "implementationId": "implementation:check-membership", "order": 1, "name": "findMembership()", "mode": "await I/O", "description": "Check whether the email already belongs to the workspace.", "evidenceIds": ["evidence:invite-handler"] },
+    { "id": "call:insert-invitation", "implementationId": "implementation:create-invitation", "order": 1, "name": "createInvitation()", "mode": "await I/O", "description": "Store the pending invitation and expiry.", "boundary": "Team database", "evidenceIds": ["evidence:invitation-store"] },
+    { "id": "call:send-invitation-email", "implementationId": "implementation:send-invitation", "order": 1, "name": "sendInvitationEmail()", "mode": "await I/O", "description": "Send the join link to the invitee.", "boundary": "Email provider", "evidenceIds": ["evidence:mailer"] }
+  ],
+  "schemas": [],
+  "sourceEvidence": [
+    { "id": "evidence:invite-handler", "path": "src/api/invitations.ts", "lineStart": 18, "lineEnd": 61, "symbol": "inviteMember", "kind": "route", "status": "confirmed", "supports": "Checks eligibility and starts an invitation." },
+    { "id": "evidence:invitation-store", "path": "src/data/invitations.ts", "lineStart": 9, "lineEnd": 34, "symbol": "createInvitation", "kind": "persistence", "status": "confirmed", "supports": "Creates a pending invitation with an expiry." },
+    { "id": "evidence:mailer", "path": "src/email/member-invitation.ts", "lineStart": 12, "lineEnd": 47, "symbol": "sendInvitationEmail", "kind": "external-call", "status": "confirmed", "supports": "Sends the invitation email through the provider." }
+  ],
+  "relationships": [],
+  "diagnostics": [{ "severity": "info", "message": "The rejected invitation path is not shown because the source does not expose a user-visible recovery flow.", "relatedIds": ["step:check-membership"] }]
+}

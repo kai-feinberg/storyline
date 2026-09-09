@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "storyline.visualization",
+  "metadata": { "visualizationUpdatedAt": "2026-08-16T12:00:00.000Z", "sourceFingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000", "gitCommit": null, "gitDirty": null },
+  "project": { "id": "project:document-service", "name": "Document Service", "summary": "Processes uploaded documents into structured results." },
+  "domains": [{ "id": "domain:document-processing", "name": "Document processing", "summary": "Turns uploaded documents into usable information.", "storyIds": ["story:process-document"], "status": "confirmed", "evidenceIds": ["evidence:upload-route"] }],
+  "stories": [{ "id": "story:process-document", "domainId": "domain:document-processing", "group": "Document processing", "title": "Process an uploaded document", "summary": "Extract and save structured information from a user document.", "system": "Document service", "status": "confirmed", "pathIds": ["path:process-document:default"], "evidenceIds": ["evidence:upload-route", "evidence:processor"] }],
+  "storyPaths": [{ "id": "path:process-document:default", "storyId": "story:process-document", "title": "Default path", "stepIds": ["step:document-uploaded", "step:extract-information", "step:save-result", "step:result-ready"], "startStepId": "step:document-uploaded", "endStepId": "step:result-ready" }],
+  "steps": [
+    { "id": "step:document-uploaded", "pathId": "path:process-document:default", "order": 1, "kind": "event", "title": "Document uploaded", "summary": "The service accepts a document for processing.", "system": "Upload API", "status": "confirmed", "inputSchemaId": "schema:document-upload", "implementationId": "implementation:accept-upload", "evidenceIds": ["evidence:upload-route"] },
+    { "id": "step:extract-information", "pathId": "path:process-document:default", "order": 2, "kind": "action", "title": "Extract document information", "summary": "The service derives structured fields from the document.", "system": "Document worker", "status": "confirmed", "outputSchemaId": "schema:extraction-result", "implementationId": "implementation:extract-information", "evidenceIds": ["evidence:processor"] },
+    { "id": "step:save-result", "pathId": "path:process-document:default", "order": 3, "kind": "action", "title": "Save extraction result", "summary": "The service preserves the structured fields and their source references.", "system": "Document worker", "status": "confirmed", "implementationId": "implementation:save-result", "evidenceIds": ["evidence:result-store"] },
+    { "id": "step:result-ready", "pathId": "path:process-document:default", "order": 4, "kind": "outcome", "title": "Extraction result ready", "summary": "The structured result is available for review.", "system": "Results API", "status": "confirmed", "evidenceIds": ["evidence:result-store"] }
+  ],
+  "implementations": [
+    { "id": "implementation:accept-upload", "stepId": "step:document-uploaded", "summary": "Accept the upload and enqueue durable processing work.", "needs": "Document and authenticated user", "produces": "Accepted processing request", "callIds": ["call:enqueue-document"], "evidenceIds": ["evidence:upload-route"] },
+    { "id": "implementation:extract-information", "stepId": "step:extract-information", "summary": "Read the document and derive the requested fields.", "needs": "Uploaded document", "produces": "Structured extraction result", "callIds": ["call:extract-fields"], "evidenceIds": ["evidence:processor"] },
+    { "id": "implementation:save-result", "stepId": "step:save-result", "summary": "Persist the result for later review.", "needs": "Structured extraction result", "produces": "Stored extraction result", "callIds": ["call:store-result"], "evidenceIds": ["evidence:result-store"] }
+  ],
+  "calls": [
+    { "id": "call:enqueue-document", "implementationId": "implementation:accept-upload", "order": 1, "name": "enqueueDocument()", "mode": "send", "description": "Send the accepted document to the processing queue.", "boundary": "Document queue", "evidenceIds": ["evidence:upload-route"] },
+    { "id": "call:extract-fields", "implementationId": "implementation:extract-information", "order": 1, "name": "extractFields()", "mode": "await I/O", "description": "Derive structured fields from the document content.", "flow": "Document content -> structured fields", "evidenceIds": ["evidence:processor"] },
+    { "id": "call:store-result", "implementationId": "implementation:save-result", "order": 1, "name": "saveExtraction()", "mode": "await I/O", "description": "Store fields and source references as one result.", "boundary": "Results database", "evidenceIds": ["evidence:result-store"] }
+  ],
+  "schemas": [
+    { "id": "schema:document-upload", "direction": "input", "title": "Document upload", "fields": [{ "name": "document", "type": "FileRef", "required": true, "description": "The document selected by the user." }] },
+    { "id": "schema:extraction-result", "direction": "output", "title": "Extraction result", "fields": [{ "name": "fields", "type": "Record<string, Value>", "required": true, "description": "Structured values derived from the document." }] }
+  ],
+  "sourceEvidence": [
+    { "id": "evidence:upload-route", "path": "src/routes/documents.ts", "lineStart": 20, "lineEnd": 52, "symbol": "uploadDocument", "kind": "route", "status": "confirmed", "supports": "Accepts an upload and starts document processing." },
+    { "id": "evidence:processor", "path": "src/workers/process-document.ts", "lineStart": 14, "lineEnd": 68, "symbol": "processDocument", "kind": "worker", "status": "confirmed", "supports": "Extracts structured fields from document content." },
+    { "id": "evidence:result-store", "path": "src/repositories/extractions.ts", "lineStart": 31, "lineEnd": 57, "symbol": "saveExtraction", "kind": "persistence", "status": "confirmed", "supports": "Stores extraction results for review." }
+  ],
+  "relationships": [],
+  "diagnostics": []
+}

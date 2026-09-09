@@ -1,0 +1,43 @@
+import { SVGProps } from "react";
+
+type StorySketchLogoProps = SVGProps<SVGSVGElement> & {
+  title?: string;
+};
+
+export function StorySketchLogo({ title, ...props }: StorySketchLogoProps) {
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden={title ? undefined : true}
+      role={title ? "img" : undefined}
+      {...props}
+    >
+      {title ? <title>{title}</title> : null}
+      <rect width="40" height="40" rx="8" fill="currentColor" />
+      <path
+        d="M11 28.5L13.6 21.2L25.7 9.1C27 7.8 29 7.8 30.3 9.1L30.9 9.7C32.2 11 32.2 13 30.9 14.3L18.8 26.4L11 28.5Z"
+        fill="#fffaf4"
+      />
+      <path
+        d="M23.4 11.4L28.6 16.6"
+        stroke="#1d211b"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M13.6 21.2L18.8 26.4"
+        stroke="#1d211b"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10.5 31.5C15 31.5 18.7 29.8 22.1 29.8C24.1 29.8 25.9 30.4 27.5 31.6"
+        stroke="#e1b84b"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

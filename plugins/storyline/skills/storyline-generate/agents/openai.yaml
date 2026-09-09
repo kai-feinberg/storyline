@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storyline Generate"
+  short_description: "Turn product behavior into clear Storyline Stories."
+  default_prompt: "Use $storyline-generate to turn the Repository Understanding into a plain-language, evidence-backed Visualization Artifact and validate it."

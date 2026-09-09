@@ -1,0 +1,4 @@
+interface:
+  display_name: "Storyline Create"
+  short_description: "Create and open a Storyline visualization end to end."
+  default_prompt: "Use $storyline-create to understand this repository, generate and validate its Storyline artifact, and open the visualization."

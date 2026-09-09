@@ -1,0 +1,18 @@
+{
+  "name": "storyline",
+  "version": "0.1.0",
+  "description": "Use agent-led repository understanding and artifact generation to create and open evidence-backed Storyline visualizations.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Storyline",
+    "shortDescription": "Turn repositories into product Stories.",
+    "longDescription": "Storyline provides an end-to-end skill that coordinates repository understanding, evidence-backed Story generation, artifact validation, and a safe local viewer, plus specialist skills for each analysis phase.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": ["End-to-end Storyline creation", "Agent repository understanding", "Story artifact generation", "Local visualization"],
+    "defaultPrompt": "Use $storyline-create to understand this repository, generate and validate its Storyline artifact, and open the visualization."
+  }
+}

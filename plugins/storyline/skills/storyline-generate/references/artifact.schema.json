@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://storyline.local/schemas/visualization-1.0.0.json",
+  "title": "Storyline Visualization Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "artifactType", "metadata", "project", "domains", "stories", "storyPaths", "steps", "implementations", "calls", "schemas", "sourceEvidence", "relationships", "diagnostics"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "artifactType": { "const": "storyline.visualization" },
+    "metadata": {
+      "type": "object",
+      "required": ["visualizationUpdatedAt", "sourceFingerprint", "gitCommit", "gitDirty"],
+      "properties": {
+        "visualizationUpdatedAt": { "type": "string", "format": "date-time" },
+        "sourceFingerprint": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "gitCommit": { "type": ["string", "null"], "pattern": "^[a-f0-9]{40,64}$" },
+        "gitDirty": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "domains": { "type": "array", "items": { "$ref": "#/$defs/domain" } },
+    "stories": { "type": "array", "items": { "$ref": "#/$defs/story" } },
+    "storyPaths": { "type": "array", "items": { "$ref": "#/$defs/storyPath" } },
+    "steps": { "type": "array", "items": { "$ref": "#/$defs/step" } },
+    "implementations": { "type": "array", "items": { "$ref": "#/$defs/implementation" } },
+    "calls": { "type": "array", "items": { "$ref": "#/$defs/call" } },
+    "schemas": { "type": "array", "items": { "$ref": "#/$defs/dataSchema" } },
+    "sourceEvidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+    "relationships": { "type": "array", "items": { "$ref": "#/$defs/relationship" } },
+    "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9-]*:[a-z0-9][a-z0-9:.-]*$" },
+    "status": { "enum": ["confirmed", "inferred", "uncertain"] },
+    "idList": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "domain": {
+      "type": "object",
+      "required": ["id", "name", "storyIds", "evidenceIds"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "type": "string" }, "summary": { "type": "string" }, "storyIds": { "$ref": "#/$defs/idList" }, "status": { "$ref": "#/$defs/status" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "story": {
+      "type": "object",
+      "required": ["id", "domainId", "title", "pathIds", "evidenceIds"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "domainId": { "$ref": "#/$defs/id" }, "group": { "type": "string" }, "title": { "type": "string" }, "summary": { "type": "string" }, "system": { "type": "string" }, "status": { "$ref": "#/$defs/status" }, "pathIds": { "type": "array", "$ref": "#/$defs/idList", "minItems": 1 }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "storyPath": {
+      "type": "object",
+      "required": ["id", "storyId", "title", "stepIds", "startStepId", "endStepId"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "storyId": { "$ref": "#/$defs/id" }, "title": { "type": "string" }, "condition": { "type": "string" }, "stepIds": { "type": "array", "$ref": "#/$defs/idList", "minItems": 1 }, "startStepId": { "$ref": "#/$defs/id" }, "endStepId": { "$ref": "#/$defs/id" } },
+      "additionalProperties": true
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "pathId", "order", "kind", "title", "evidenceIds"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "pathId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 1 }, "kind": { "enum": ["event", "action", "decision", "outcome"] }, "title": { "type": "string" }, "summary": { "type": "string" }, "system": { "type": "string" }, "status": { "$ref": "#/$defs/status" }, "inputSchemaId": { "$ref": "#/$defs/id" }, "outputSchemaId": { "$ref": "#/$defs/id" }, "implementationId": { "$ref": "#/$defs/id" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "implementation": {
+      "type": "object",
+      "required": ["id", "stepId", "summary", "callIds", "evidenceIds"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "stepId": { "$ref": "#/$defs/id" }, "summary": { "type": "string" }, "needs": { "type": "string" }, "produces": { "type": "string" }, "callIds": { "$ref": "#/$defs/idList" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "call": {
+      "type": "object",
+      "required": ["id", "implementationId", "order", "name", "description", "evidenceIds"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "implementationId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 1 }, "name": { "type": "string" }, "mode": { "type": "string" }, "description": { "type": "string" }, "flow": { "type": "string" }, "boundary": { "type": "string" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "dataSchema": {
+      "type": "object",
+      "required": ["id", "direction", "title", "fields"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "direction": { "enum": ["input", "output"] }, "title": { "type": "string" }, "fields": { "type": "array", "items": { "type": "object", "required": ["name", "type", "required", "description"], "properties": { "name": { "type": "string" }, "type": { "type": "string" }, "required": { "type": "boolean" }, "description": { "type": "string" } }, "additionalProperties": true } } },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["id", "path", "lineStart", "lineEnd"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "path": { "type": "string", "minLength": 1 }, "lineStart": { "type": "integer", "minimum": 1 }, "lineEnd": { "type": "integer", "minimum": 1 }, "symbol": { "type": "string" }, "kind": { "type": "string" }, "status": { "$ref": "#/$defs/status" }, "supports": { "type": "string" } },
+      "additionalProperties": true
+    },
+    "relationship": {
+      "type": "object",
+      "required": ["id", "from", "to", "kind"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" }, "kind": { "type": "string" }, "label": { "type": "string" } },
+      "additionalProperties": true
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["severity", "message"],
+      "properties": { "severity": { "enum": ["info", "warning", "error"] }, "message": { "type": "string" }, "relatedIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    }
+  }
+}
