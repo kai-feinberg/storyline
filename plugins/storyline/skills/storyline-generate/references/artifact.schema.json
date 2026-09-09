@@ -38,6 +38,7 @@
     "schemas": { "type": "array", "items": { "$ref": "#/$defs/dataSchema" } },
     "sourceEvidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
     "relationships": { "type": "array", "items": { "$ref": "#/$defs/relationship" } },
+    "dataFlows": { "type": "array", "items": { "$ref": "#/$defs/dataFlow" } },
     "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
   },
   "$defs": {
@@ -65,7 +66,13 @@
     "step": {
       "type": "object",
       "required": ["id", "pathId", "order", "kind", "title", "evidenceIds"],
-      "properties": { "id": { "$ref": "#/$defs/id" }, "pathId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 1 }, "kind": { "enum": ["event", "action", "decision", "outcome"] }, "title": { "type": "string" }, "summary": { "type": "string" }, "system": { "type": "string" }, "status": { "$ref": "#/$defs/status" }, "inputSchemaId": { "$ref": "#/$defs/id" }, "outputSchemaId": { "$ref": "#/$defs/id" }, "implementationId": { "$ref": "#/$defs/id" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "properties": { "id": { "$ref": "#/$defs/id" }, "pathId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 1 }, "kind": { "enum": ["event", "action", "decision", "outcome"] }, "title": { "type": "string" }, "summary": { "type": "string" }, "system": { "type": "string" }, "status": { "$ref": "#/$defs/status" }, "inputSchemaId": { "$ref": "#/$defs/id" }, "outputSchemaId": { "$ref": "#/$defs/id" }, "implementationId": { "$ref": "#/$defs/id" }, "schemaChanges": { "type": "array", "items": { "$ref": "#/$defs/schemaChange" } }, "evidenceIds": { "$ref": "#/$defs/idList" } },
+      "additionalProperties": true
+    },
+    "schemaChange": {
+      "type": "object",
+      "required": ["kind", "description"],
+      "properties": { "kind": { "enum": ["added", "removed", "changed", "preserved"] }, "from": { "type": ["string", "null"] }, "to": { "type": ["string", "null"] }, "description": { "type": "string" }, "evidenceIds": { "$ref": "#/$defs/idList" } },
       "additionalProperties": true
     },
     "implementation": {
@@ -83,7 +90,7 @@
     "dataSchema": {
       "type": "object",
       "required": ["id", "direction", "title", "fields"],
-      "properties": { "id": { "$ref": "#/$defs/id" }, "direction": { "enum": ["input", "output"] }, "title": { "type": "string" }, "fields": { "type": "array", "items": { "type": "object", "required": ["name", "type", "required", "description"], "properties": { "name": { "type": "string" }, "type": { "type": "string" }, "required": { "type": "boolean" }, "description": { "type": "string" } }, "additionalProperties": true } } },
+      "properties": { "id": { "$ref": "#/$defs/id" }, "direction": { "enum": ["input", "output", "object"] }, "title": { "type": "string" }, "fields": { "type": "array", "items": { "type": "object", "required": ["name", "type", "required", "description"], "properties": { "name": { "type": "string" }, "type": { "type": "string" }, "schemaId": { "$ref": "#/$defs/id" }, "required": { "type": "boolean" }, "description": { "type": "string" } }, "additionalProperties": true } } },
       "additionalProperties": true
     },
     "evidence": {
@@ -96,6 +103,18 @@
       "type": "object",
       "required": ["id", "from", "to", "kind"],
       "properties": { "id": { "$ref": "#/$defs/id" }, "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" }, "kind": { "type": "string" }, "label": { "type": "string" } },
+      "additionalProperties": true
+    },
+    "dataFlow": {
+      "type": "object",
+      "required": ["id", "title", "stages"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string" }, "description": { "type": "string" }, "storyIds": { "$ref": "#/$defs/idList" }, "stages": { "type": "array", "items": { "$ref": "#/$defs/dataFlowStage" } } },
+      "additionalProperties": true
+    },
+    "dataFlowStage": {
+      "type": "object",
+      "required": ["stepId", "schemaId", "label", "state"],
+      "properties": { "stepId": { "$ref": "#/$defs/id" }, "schemaId": { "$ref": "#/$defs/id" }, "label": { "type": "string" }, "description": { "type": "string" }, "state": { "enum": ["created", "updated", "branched", "completed"] } },
       "additionalProperties": true
     },
     "diagnostic": {

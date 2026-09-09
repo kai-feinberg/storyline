@@ -61,6 +61,8 @@ The agent method for selecting and shaping Stories is in the [Storyline Guidelin
 2. **Steps** explain the meaningful progression through a Story.
 3. **Implementation** connects each Step to code, systems, and source evidence.
 
+The current viewer also provides Data flow and Search modes. Data flow shows supporting Story relationships and named data objects as they change across Steps. Search finds Stories, Steps, and source evidence from one keyboard-accessible command. The active design follow-up list is in [Storyline follow-up](docs/planning/storyline-follow-up.md).
+
 ## Current priorities
 
 - Define a reliable model for Stories, Steps, metadata, and Implementation evidence.
@@ -110,11 +112,13 @@ Start Vite while changing the interface:
 pnpm --dir prototypes/redesign-viewer dev
 ```
 
+The prototype dev server serves the checked-in example artifact at `/api/artifact`. Viewer state is shareable through URL parameters for the active view, Story, selected Step, optional quick context, and focused detail modal.
+
 After a UI change, rebuild and publish the viewer into the plugin:
 
 ```bash
 pnpm --dir plugins/storyline build:viewer
-pnpm --dir plugins/storyline test
+node --test plugins/storyline/tests/*.test.mjs
 ```
 
 The build command replaces old hashed assets. Commit the prototype source and the rebuilt plugin assets together.

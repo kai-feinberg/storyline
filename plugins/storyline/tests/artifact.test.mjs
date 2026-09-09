@@ -68,6 +68,43 @@ test('rejects references to the wrong entity type', () => {
   assert.throws(() => validateArtifact(artifact), /must reference an id from sourceEvidence/);
 });
 
+test('accepts explicit linked object schemas', () => {
+  const artifact = validArtifact();
+  artifact.schemas = [
+    { id: 'schema:boundary', direction: 'output', title: 'Result', fields: [{ name: 'project', type: 'Project', schemaId: 'schema:project', required: true, description: 'Saved project.' }] },
+    { id: 'schema:project', direction: 'object', title: 'Project', fields: [{ name: 'id', type: 'string', required: true, description: 'Stable identity.' }] },
+  ];
+  assert.equal(validateArtifact(artifact), artifact);
+});
+
+test('rejects a linked object schema that does not exist', () => {
+  const artifact = validArtifact();
+  artifact.schemas = [{ id: 'schema:boundary', direction: 'output', title: 'Result', fields: [{ name: 'project', type: 'Project', schemaId: 'schema:missing', required: true, description: 'Saved project.' }] }];
+  assert.throws(() => validateArtifact(artifact), /schema:boundary.project must reference an id from schemas/);
+});
+
+test('accepts named data-flow stages that reference Steps and Schemas', () => {
+  const artifact = validArtifact();
+  artifact.schemas = [{ id: 'schema:test-output', direction: 'output', title: 'Test output', fields: [] }];
+  artifact.dataFlows = [{
+    id: 'dataflow:test',
+    title: 'Test object',
+    storyIds: ['story:test'],
+    stages: [{ stepId: 'step:test', schemaId: 'schema:test-output', label: 'Completed', state: 'completed' }],
+  }];
+  assert.equal(validateArtifact(artifact), artifact);
+});
+
+test('rejects data-flow stages that reference the wrong entity type', () => {
+  const artifact = validArtifact();
+  artifact.dataFlows = [{
+    id: 'dataflow:test',
+    title: 'Test object',
+    stages: [{ stepId: 'story:test', schemaId: 'schema:missing', label: 'Broken', state: 'updated' }],
+  }];
+  assert.throws(() => validateArtifact(artifact), /must reference an id from steps/);
+});
+
 test('verifies source evidence against repository files when requested', () => {
   const artifact = validArtifact();
   assert.throws(() => validateArtifact(artifact, { root: process.cwd(), verifyEvidence: true }), /source file does not exist/);

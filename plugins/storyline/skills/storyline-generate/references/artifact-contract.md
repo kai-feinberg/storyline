@@ -24,6 +24,7 @@ Write `.storyline/visualization.json` with these top-level fields:
   "schemas": [],
   "sourceEvidence": [],
   "relationships": [],
+  "dataFlows": [],
   "diagnostics": []
 }
 ```
@@ -95,6 +96,23 @@ Run `storyline stamp <repository>` after the Visualization Artifact is created o
 
 `kind` must be `event`, `action`, `decision`, or `outcome`.
 
+When the artifact can explain how a Step changes its data contract, add optional `schemaChanges` entries. These are editorial field mappings, not a complete runtime type system. Use them to describe fields being added, consumed, changed, or preserved between the Step boundary schemas.
+
+```json
+{
+  "schemaChanges": [
+    {
+      "kind": "changed",
+      "from": "script",
+      "to": "scenes",
+      "description": "The source script is split into ordered scene drafts."
+    }
+  ]
+}
+```
+
+If no explicit mapping is available, the viewer may derive a simple comparison from the Step's input and output schemas. Derived comparisons must remain visibly distinguishable from evidence-backed mappings.
+
 ### Implementation
 
 ```json
@@ -142,6 +160,18 @@ Run `storyline stamp <repository>` after the Visualization Artifact is created o
 }
 ```
 
+Use `direction: "object"` for reusable object shapes that are not themselves a Step boundary. A field can include `schemaId` when its type is an object or collection with a separately documented schema. Do not infer this link from a type name alone.
+
+```json
+{
+  "name": "project",
+  "type": "Project",
+  "schemaId": "schema:object-project",
+  "required": true,
+  "description": "The saved project."
+}
+```
+
 ### Source evidence
 
 ```json
@@ -156,6 +186,30 @@ Run `storyline stamp <repository>` after the Visualization Artifact is created o
 }
 ```
 
+### Data flow
+
+Use `dataFlows` for a small number of named data objects that help a reader follow how meaningful product data changes across Steps. This is not a replacement for Step Input and Output schemas. Each stage points to the Step that owns the transition and the Schema that describes the object at that point.
+
+```json
+{
+  "id": "dataflow:explainer-draft",
+  "title": "Explainer draft",
+  "description": "The creator's script becomes a complete editable explainer.",
+  "storyIds": ["story:create-explainer"],
+  "stages": [
+    {
+      "stepId": "step:create:script-submitted",
+      "schemaId": "schema:script-input",
+      "label": "Script received",
+      "description": "The draft starts with the creator's title and script.",
+      "state": "created"
+    }
+  ]
+}
+```
+
+`state` must be `created`, `updated`, `branched`, or `completed`. Keep stages focused on meaningful product data. Do not list every internal variable or every function handoff.
+
 ## Invariants
 
 - Every ID is unique and stable across unchanged analyses.
@@ -165,6 +219,7 @@ Run `storyline stamp <repository>` after the Visualization Artifact is created o
 - Every Story Path has an explicit ordered `stepIds` list.
 - Every Step belongs to one Story Path and has an integer `order`.
 - Story progression does not use Call or dependency relationships.
+- Data flow stages must reference existing Steps and Schemas.
 - Source paths are repository-relative and cannot contain `..`.
 - Missing Implementation detail is allowed when a diagnostic explains the gap.
 - The artifact contains data only.

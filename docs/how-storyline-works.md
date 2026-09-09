@@ -164,9 +164,22 @@ This is the viewer contract. It contains:
 - Input and output schemas.
 - Source evidence.
 - Supporting relationships.
+- Optional named data flows with stage-level Step and schema references.
 - Diagnostics.
 
 The viewer reads only this file.
+
+The current viewer exposes the artifact in three complementary modes:
+
+- **Story:** the ordered Story Path, with Step selection and progressive Implementation disclosure.
+- **Data flow:** supporting relationships between Stories and named data objects as they are created, updated, branched, and completed across Steps.
+- **Search:** a repository-wide search across Stories, Steps, and Source Evidence.
+
+The Story view is intentionally minimal on first load. Clicking anywhere on a Step expands or collapses its local detail without changing the page layout. Compact change pills sit below the Step description and provide detail on hover. The expansion combines each Input or Output boundary with its schema. Plain-language pseudocode explains the broad logic. A focused modal opens on Implementation and provides a separate Schema tab for full before-and-after inspection. Data Flow focuses on object histories, and artifact diagnostics stay in the global artifact-health control.
+
+The viewer preserves the active view, Story, selected Step, quick-context visibility, and focused Step in the URL. It uses history replacement so normal browsing does not create a new browser-history entry for every selection.
+
+Expanded Steps include Input and Output schemas when they are available. Schema fields may reference a reusable object schema through an explicit `schemaId`; the viewer never infers this link from a type name alone. Data-object lifecycles also expose the initial schema and a structural diff at later stages. A Step may include optional `schemaChanges` entries for evidence-backed field mappings. When those entries are absent, the viewer derives a limited name-and-type comparison from the available schemas. Exact field lineage, consumption, and renaming are not implied unless the artifact records them.
 
 ## CLI commands
 

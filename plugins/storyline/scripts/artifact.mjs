@@ -114,6 +114,10 @@ export function validateArtifact(artifact, { root, verifyEvidence = Boolean(root
     if (ids.has(relationship.id)) throw new Error(`Duplicate id: ${relationship.id}`);
     ids.add(relationship.id);
   }
+  for (const dataFlow of artifact.dataFlows ?? []) {
+    if (ids.has(dataFlow.id)) throw new Error(`Duplicate id: ${dataFlow.id}`);
+    ids.add(dataFlow.id);
+  }
 
   const ref = (id, owner) => {
     if (id && !ids.has(id)) throw new Error(`${owner} references missing id: ${id}`);
@@ -186,6 +190,9 @@ export function validateArtifact(artifact, { root, verifyEvidence = Boolean(root
     typedRefs(call.evidenceIds, call.id, 'sourceEvidence');
     if (!artifact.implementations.find((item) => item.id === call.implementationId)?.callIds.includes(call.id)) throw new Error(`${call.id} is not linked back from its Implementation`);
   }
+  for (const schema of artifact.schemas) {
+    for (const field of schema.fields) typedRef(field.schemaId, `${schema.id}.${field.name}`, 'schemas');
+  }
   for (const evidence of artifact.sourceEvidence) {
     if (path.isAbsolute(evidence.path) || evidence.path.includes('\\') || evidence.path.split('/').includes('..')) throw new Error(`${evidence.id} has an unsafe source path`);
     if (!Number.isInteger(evidence.lineStart) || !Number.isInteger(evidence.lineEnd) || evidence.lineStart < 1 || evidence.lineEnd < evidence.lineStart) throw new Error(`${evidence.id} has an invalid line range`);
@@ -199,6 +206,13 @@ export function validateArtifact(artifact, { root, verifyEvidence = Boolean(root
   for (const relationship of artifact.relationships) {
     ref(relationship.from, relationship.id);
     ref(relationship.to, relationship.id);
+  }
+  for (const dataFlow of artifact.dataFlows ?? []) {
+    typedRefs(dataFlow.storyIds, dataFlow.id, 'stories');
+    for (const stage of dataFlow.stages) {
+      typedRef(stage.stepId, `${dataFlow.id} stage`, 'steps');
+      typedRef(stage.schemaId, `${dataFlow.id} stage`, 'schemas');
+    }
   }
 
   if (verifyFreshness) {

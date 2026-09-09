@@ -173,11 +173,11 @@ The palette is warm and low-pressure: navy carries meaning, coral marks the path
 
 ## Layout
 
-Desktop uses a 276px repository sidebar and a fluid workspace. Inside the workspace, a centered grid caps at 1300px and divides into a story column (`minmax(500px, 1fr)`) and a 330px contextual detail panel. The first viewport therefore reads left to right as repository navigation, vertical story route, then selected-behavior context.
+Desktop uses a 72px navigation rail and a fluid workspace. Inside the workspace, the Story view divides into a flexible story column and a 360px contextual detail panel. The first viewport therefore reads left to right as navigation, compact Story header and route, then selected-Step context.
 
-The story itself is a centered 660px measure with a 47px marker rail, 17px gutter, and 26px vertical cadence between stops. The story canvas uses `58px clamp(32px, 5vw, 76px) 90px`; detail uses `52px 34px`. A 70px sticky topbar anchors the workspace.
+The story itself is a centered 820px measure with a 47px marker rail, 17px gutter, and 19px vertical cadence between stops. The story canvas uses `32px clamp(24px, 5vw, 80px) 88px`; detail uses `28px 24px`. A 66px sticky topbar anchors the workspace.
 
-At 1080px, the sidebar contracts to 232px and detail to 280px. At 820px, navigation becomes an off-canvas drawer, the workspace stacks, desktop selected-detail content yields to local context inside the selected card, and the canvas uses `42px 20px 64px`. At 560px, markers shrink from 47px to 37px, card padding tightens, and system metadata hides to preserve the story.
+At 1120px, detail contracts to 320px. At 900px, the Story workspace stacks and selected-Step context becomes a fixed right drawer. At 640px, the navigation rail becomes a fixed bottom bar, the drawer uses most of the viewport width, markers shrink from 47px to 37px, card padding tightens, and system metadata hides to preserve the story.
 
 ## Elevation & Depth
 
@@ -206,14 +206,14 @@ The form language is rounded but restrained. Story cards use 16px corners; evide
 - **Primary item:** 40px minimum height, 12px radius, `0 11px` padding, 13px/600 text.
 - **Story item:** 46px minimum height, 12px radius, `7px 9px` padding, dot-plus-label composition.
 - **States:** default is transparent and muted; hover adds translucent paper; active becomes paper with low lift, navy text, and a coral icon or pin.
-- **Mobile:** the 276px rail becomes a drawer of `min(310px, 88vw)` with an ink-tinted backdrop and a `0.28s cubic-bezier(.22, 1, .36, 1)` entrance.
+- **Mobile:** the 72px rail becomes a fixed bottom navigation bar with 48px controls; selected Step context becomes a right-side drawer.
 
 ### Search Control
 
 - **Shape:** 11px radius, 38px height, `0 12px` padding.
 - **Style:** quiet warm-gray fill with muted ink text and an inset paper keycap.
 - **State:** hover darkens the warm surface and restores ink navy; keyboard focus uses a 3px translucent coral outline offset by 3px.
-- **Responsive behavior:** collapses to a 42px icon control below 820px.
+- **Responsive behavior:** collapses to a 42px icon control below 640px and opens the same global search dialog from `⌘K` or `Ctrl K`.
 
 ### Story Route & Markers
 
@@ -243,11 +243,27 @@ The form language is rounded but restrained. Story cards use 16px corners; evide
 - **Typography:** 9px semantic label plus 9–10px Source Code Pro for path and line range; long paths truncate.
 - **Purpose:** implementation evidence remains available and traceable, but visually subordinate to behavior.
 
-### Context Panel
+### Step Disclosure
 
-- **Desktop:** 330px sticky panel below the 70px topbar, warm tonal background, 52px/34px inset, thin section rules.
-- **Empty state:** circular mint compass, reassuring heading and explanation, then a two-item coral/mint legend.
-- **Mobile:** selected context moves into the card as a two-column needs/produces grid with a full-width source row.
+- **Default:** Step details are collapsed so the Story route owns the first viewport.
+- **Interaction:** clicking a Step card expands or collapses its local detail. Arrow keys select Steps; Enter toggles the selected Step.
+- **Content order:** quiet required-input origin pills and qualified field-change pills sit below the Step description. Expanded content shows combined Input and Output schema cards, then a concise plain-language pseudocode outline.
+- **Deep detail:** a focused modal opens on the detailed Implementation trace and provides full before/after schemas in a second tab.
+- **Linked objects:** object fields can expand an explicitly referenced reusable schema in place.
+- **Scope:** object histories stay in Data Flow. Artifact diagnostics stay in the global artifact-health control.
+
+### Data Flow
+
+- **Story relationships:** supporting relationships appear in a separate Data flow view so they do not imply Story progression.
+- **Data objects:** named object lifecycles show each Step as a direct navigation link, keep the stage description visible, show documented field-change pills, and contain the full schema behind a compact disclosure.
+- **Step detail:** each Step shows required input origins and documented changes below its description. Change paths include their parent object, such as `scenes.audioUrl`. Expanded content shows the Input and Output schema shapes without diff decoration.
+- **Schema change kinds:** Added, Consumed, Changed, and Preserved use semantic mint, coral, and amber labels; color is always paired with text.
+
+### Detail Disclosure
+
+- **Selection:** selecting a Step keeps the Story layout stable.
+- **Expansion:** the Step card shows change pills in its summary, then boundary schemas and broad pseudocode when expanded. The modal holds detailed implementation records and complete schemas.
+- **Data Flow:** object histories are the only primary content. Story connections are omitted. Each stage leads with its Step and documented changes; full schemas remain optional.
 
 ## Do's and Don'ts
 
