@@ -117,8 +117,54 @@ function SchemaFields({ schema, schemaById, showTitle = true, depth = 0, full = 
   return <div className="schema-fields">{showTitle && <div className="schema-title"><strong>{schema.title}</strong><span>{schema.fields.length} fields</span></div>}{visibleFields.map((field) => { const linkedSchema = depth < 6 && field.schemaId ? schemaById?.get(field.schemaId) : null; return <div className="schema-field" key={field.name}><code>{field.name}</code><span>{field.type}</span>{field.required && <em>required</em>}<p>{field.description}</p>{linkedSchema && <details className="linked-schema" open={full || undefined}><summary><Icon name="chevron" size={13}/>{full ? linkedSchema.title : `View ${linkedSchema.title}`}</summary><SchemaFields schema={linkedSchema} schemaById={schemaById} depth={depth + 1} full={full}/></details>}</div>; })}{!full && schema.fields.length > 6 && <button className="show-schema-fields" onClick={(event) => { event.stopPropagation(); setShowAll((value) => !value); }}>{showAll ? 'Show fewer fields' : `Show all ${schema.fields.length} fields`}</button>}</div>;
 }
 
-function BoundarySchemaCard({ direction, schema, schemaById }) {
-  return <section className={`boundary-schema-card ${direction.toLowerCase()}`}><header><span>{direction}</span><small>{schema?.fields?.length ?? 0} fields</small></header><SchemaFields schema={schema} schemaById={schemaById} showTitle={false}/></section>;
+function BoundarySchemaCard({ direction, schema, schemaById, changes = [], onOpenJson }) {
+  const addedFields = new Set(changes.filter((change) => change.kind === 'added').map((change) => change.to));
+  return <section className={`boundary-schema-card ${direction.toLowerCase()}`}><header><span>{direction}</span><button className="schema-json-button" onClick={(event) => { event.stopPropagation(); onOpenJson(schema, direction); }}><span>JSON</span><Icon name="external" size={11}/></button></header><div className="schema-fields">{(schema?.fields ?? []).slice(0, 6).map((field) => <div className="schema-field" key={field.name}><code>{field.name}</code><span>{field.type}</span>{field.required && <em>required</em>}{direction === 'Output' && addedFields.has(field.name) && <b className="field-added" aria-label="Added in this Step">+ added</b>}<p>{field.description}</p></div>)}</div></section>;
+}
+
+function schemaType(type = '') {
+  const base = type.replace(/\[.*\]$/, '');
+  if (/^(string|number|integer|boolean)$/.test(base)) return { type: base };
+  if (/^(URL|datetime)$/.test(base)) return { type: 'string', format: base === 'URL' ? 'uri' : 'date-time' };
+  return { type: 'object', title: base };
+}
+
+function schemaAsJson(schema, schemaById) {
+  const definitions = {};
+  const build = (item, seen = new Set()) => {
+    if (!item) return {};
+    const properties = {};
+    const required = [];
+    for (const field of item.fields ?? []) {
+      const isArray = /\[.*\]$/.test(field.type);
+      let shape;
+      if (field.schemaId) {
+        const linked = schemaById?.get(field.schemaId);
+        if (linked && !seen.has(field.schemaId)) {
+          definitions[field.schemaId] = build(linked, new Set([...seen, field.schemaId]));
+        }
+        shape = isArray ? { type: 'array', items: { $ref: `#/$defs/${field.schemaId}` } } : { $ref: `#/$defs/${field.schemaId}` };
+      } else {
+        const primitive = schemaType(field.type);
+        shape = isArray ? { type: 'array', items: primitive } : primitive;
+      }
+      properties[field.name] = { ...shape, description: field.description };
+      if (field.required) required.push(field.name);
+    }
+    return { title: item.title, type: 'object', properties, ...(required.length ? { required } : {}) };
+  };
+  const root = build(schema, new Set([schema?.id]));
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', ...root, ...(Object.keys(definitions).length ? { $defs: definitions } : {}) };
+}
+
+function JsonSchemaDialog({ schema, direction, schemaById, onClose }) {
+  const [copied, setCopied] = useState(false);
+  const copyRef = useRef(null);
+  useEffect(() => { if (schema) { setCopied(false); requestAnimationFrame(() => copyRef.current?.focus()); } }, [schema]);
+  if (!schema) return null;
+  const json = JSON.stringify(schemaAsJson(schema, schemaById), null, 2);
+  const copy = async () => { await navigator.clipboard.writeText(json); setCopied(true); };
+  return <div className="focus-layer json-schema-layer" role="dialog" aria-modal="true" aria-labelledby="json-schema-title"><button className="layer-backdrop" onClick={onClose} aria-label="Close JSON schema"/><div className="json-schema-dialog"><header><div><span>{direction} JSON schema</span><strong id="json-schema-title">{schema.title}</strong></div><div><button ref={copyRef} onClick={copy}><Icon name="copy" size={14}/>{copied ? 'Copied' : 'Copy schema'}</button><button onClick={onClose}><Icon name="close" size={14}/>Close</button></div></header><pre>{json}</pre></div></div>;
 }
 
 function SchemaSummary({ step }) {
@@ -151,43 +197,57 @@ function Pseudocode({ step, operationDetails }) {
   const asInstruction = (text) => text ? text.replace(/[.]$/, '').replace(/^./, (letter) => letter.toLowerCase()) : null;
   const instructions = parts.flatMap(({ detail }) => detail?.calls?.map((call) => asInstruction(call.description)) ?? (detail?.summary ? [asInstruction(detail.summary)] : [])).filter(Boolean);
   const actions = [`Read ${step.inputSchema?.title ?? 'the Step input'}`, ...instructions.map((instruction) => instruction.charAt(0).toUpperCase() + instruction.slice(1)), `Return ${step.outputSchema?.title ?? 'the Step output'}`];
-  const lines = [`on "${step.title}"`, ...actions.map((action, index) => `  ${index + 1}. ${action}`)];
-  return <div className="pseudocode"><div className="pseudocode-head"><strong>High-level logic</strong></div><pre>{lines.join('\n')}</pre></div>;
+  return <div className="pseudocode"><div className="pseudocode-head"><strong>High-level logic</strong></div><pre aria-label={`High-level logic for ${step.title}`}><code><span className="logic-trigger">{`on "${step.title}"`}</span>{actions.map((action, index) => <span className={`logic-line ${index === 0 ? 'logic-input' : index === actions.length - 1 ? 'logic-output' : 'logic-transform'}`} key={`${action}-${index}`}>{`${index + 1}. ${action}`}</span>)}</code></pre></div>;
 }
 
-function StepDetails({ step, operationDetails, schemaById, onOpenDetail }) {
+function StepDetails({ step, operationDetails, schemaById, onOpenDetail, onOpenJson }) {
   const hasChanges = (step.schemaChanges ?? []).some((change) => change.kind !== 'preserved');
-  return <div className="step-details"><section className="step-detail-section"><div className="step-detail-heading"><span>Data</span>{!hasChanges && <small className="no-field-changes">No field changes</small>}</div><div className="boundary-schema-grid"><BoundarySchemaCard direction="Input" schema={step.inputSchema} schemaById={schemaById}/><span className="boundary-arrow"><Icon name="arrow" size={22}/></span><BoundarySchemaCard direction="Output" schema={step.outputSchema} schemaById={schemaById}/></div></section><section className="step-detail-section logic-section"><Pseudocode step={step} operationDetails={operationDetails}/><button className="open-detail-button" onClick={(event) => { event.stopPropagation(); onOpenDetail(step.id); }}>View implementation details <Icon name="arrow" size={14}/></button></section></div>;
+  return <div className="step-details"><section className="step-detail-section"><div className="step-detail-heading"><span>Data</span>{!hasChanges && <small className="no-field-changes">No field changes</small>}</div><div className="boundary-schema-grid"><BoundarySchemaCard direction="Input" schema={step.inputSchema} schemaById={schemaById} onOpenJson={onOpenJson}/><span className="boundary-arrow"><Icon name="arrow" size={22}/></span><BoundarySchemaCard direction="Output" schema={step.outputSchema} schemaById={schemaById} changes={step.schemaChanges} onOpenJson={onOpenJson}/></div></section><section className="step-detail-section logic-section"><Pseudocode step={step} operationDetails={operationDetails}/><button className="open-detail-button" onClick={(event) => { event.stopPropagation(); onOpenDetail(step.id); }}>View implementation details <Icon name="arrow" size={14}/></button></section></div>;
 }
 
-function StoryStep({ step, index, selected, expanded, onToggle, operationDetails, schemaById, onOpenDetail }) {
+function StoryStep({ step, index, selected, expanded, onToggle, operationDetails, schemaById, onOpenDetail, onOpenJson }) {
   const toggleFromCard = (event) => {
     if (event.target.closest('button, a, summary, input, textarea, select')) return;
     onToggle(step.id);
   };
   const changes = (step.schemaChanges ?? []).filter((change) => ['added', 'changed'].includes(change.kind));
-  return <li className={`route-stop ${selected ? 'selected' : ''} ${expanded ? 'expanded' : ''}`} data-nav-id={step.id}><div className="route-index" aria-hidden="true"><span>{index + 1}</span></div><article className="step-card" onClick={toggleFromCard}><button className="step-main" onClick={() => onToggle(step.id)} aria-expanded={expanded}><span className="step-type">{step.type}</span><span className="step-system">{step.system}</span><strong>{step.title}</strong><span className="step-summary">{step.summary}</span><StepChangePills changes={changes}/><span className="step-toggle-label">{expanded ? 'Collapse Step' : 'Expand Step'}<Icon name="chevron" size={15}/></span></button>{expanded && <StepDetails step={step} operationDetails={operationDetails} schemaById={schemaById} onOpenDetail={onOpenDetail}/>}</article></li>;
+  return <li className={`route-stop ${selected ? 'selected' : ''} ${expanded ? 'expanded' : ''}`} data-nav-id={step.id}><div className="route-index" aria-hidden="true"><span>{index + 1}</span></div><article className="step-card" onClick={toggleFromCard}><button className="step-main" onClick={() => onToggle(step.id)} aria-expanded={expanded}><span className="step-type">{step.type}</span><span className="step-system">{step.system}</span><strong>{step.title}</strong><span className="step-summary">{step.summary}</span><StepChangePills changes={changes}/><span className="step-toggle-label">{expanded ? 'Collapse Step' : 'Expand Step'}<Icon name="chevron" size={15}/></span></button>{expanded && <StepDetails step={step} operationDetails={operationDetails} schemaById={schemaById} onOpenDetail={onOpenDetail} onOpenJson={onOpenJson}/>}</article></li>;
 }
 
-function StepDetailDialog({ step, operationDetails, schemaById, onClose }) {
+function FieldLedger({ step }) {
+  const changes = step.schemaChanges ?? [];
+  const inputFields = new Map((step.inputSchema?.fields ?? []).map((field) => [field.name, field]));
+  const outputFields = new Map((step.outputSchema?.fields ?? []).map((field) => [field.name, field]));
+  if (!changes.length) return <p className="muted-copy">No field continuity is documented for this Step.</p>;
+  return <section className="modal-field-ledger"><header><h2>Field continuity</h2><p>See which fields remain, change shape, appear, or leave this Step.</p></header><div className="field-ledger">{changes.map((change, index) => {
+    const isSplit = change.kind === 'changed' && /\bsplit\b/i.test(change.description ?? '');
+    const fieldName = isSplit ? `${change.from} → multiple ${change.to}` : change.from && change.to && change.from !== change.to ? `${change.from} → ${change.to}` : change.to ?? change.from;
+    const field = outputFields.get(change.to) ?? inputFields.get(change.from);
+    const state = change.kind === 'preserved' ? 'kept' : change.kind;
+    const mark = change.kind === 'added' ? '+' : change.kind === 'removed' ? '−' : change.kind === 'changed' ? '→' : '•';
+    return <div className={state} key={`${change.kind}-${fieldName}-${index}`}><span className="continuity-mark" aria-hidden="true">{mark}</span><code>{fieldName}</code><span>{field?.type ?? change.description}</span><strong>{state}</strong><p>{change.description}</p></div>;
+  })}</div></section>;
+}
+
+function StepDetailDialog({ step, operationDetails, onClose }) {
   const [tab, setTab] = useState('implementation');
   const closeRef = useRef(null);
   useEffect(() => { if (step) { setTab('implementation'); requestAnimationFrame(() => closeRef.current?.focus()); } }, [step]);
   if (!step) return null;
-  return <div className="focus-layer" role="dialog" aria-modal="true" aria-labelledby="detail-title"><button className="layer-backdrop" onClick={onClose} aria-label="Close detailed Step view"/><div className="focus-dialog"><header className="focus-bar"><div><span>Detailed Step</span><strong id="detail-title">{step.title}</strong></div><button ref={closeRef} onClick={onClose}><Icon name="close" size={15}/>Close</button></header><nav className="detail-tabs" aria-label="Detailed Step sections"><button className={tab === 'implementation' ? 'active' : ''} onClick={() => setTab('implementation')} aria-current={tab === 'implementation' ? 'page' : undefined}>Implementation</button><button className={tab === 'schema' ? 'active' : ''} onClick={() => setTab('schema')} aria-current={tab === 'schema' ? 'page' : undefined}>Schema</button></nav><div className="focus-content">{tab === 'implementation' && <><Pseudocode step={step} operationDetails={operationDetails}/><div className="modal-implementation"><StepImplementation step={step} operationDetails={operationDetails}/></div></>}{tab === 'schema' && <div className="modal-schema-grid"><section><div className="modal-section-heading"><strong>Before</strong><span>Input</span></div><SchemaFields schema={step.inputSchema} schemaById={schemaById} full/></section><section><div className="modal-section-heading"><strong>After</strong><span>Output</span></div><SchemaFields schema={step.outputSchema} schemaById={schemaById} full/></section></div>}</div></div></div>;
+  return <div className="focus-layer" role="dialog" aria-modal="true" aria-labelledby="detail-title"><button className="layer-backdrop" onClick={onClose} aria-label="Close detailed Step view"/><div className="focus-dialog"><header className="focus-bar"><div><span>Detailed Step</span><strong id="detail-title">{step.title}</strong></div><button ref={closeRef} onClick={onClose}><Icon name="close" size={15}/>Close</button></header><nav className="detail-tabs" aria-label="Detailed Step sections"><button className={tab === 'implementation' ? 'active' : ''} onClick={() => setTab('implementation')} aria-current={tab === 'implementation' ? 'page' : undefined}>Implementation</button><button className={tab === 'schema' ? 'active' : ''} onClick={() => setTab('schema')} aria-current={tab === 'schema' ? 'page' : undefined}>Field changes</button></nav><div className="focus-content">{tab === 'implementation' && <><Pseudocode step={step} operationDetails={operationDetails}/><div className="modal-implementation"><StepImplementation step={step} operationDetails={operationDetails}/></div></>}{tab === 'schema' && <FieldLedger step={step}/>}</div></div></div>;
 }
 
 function StageSchema({ schema, schemaById }) {
+  if (!schema) return null;
   return <details className="stage-schema-menu"><summary>Schema <span>{schema?.fields?.length ?? 0}</span><Icon name="chevron" size={12}/></summary><div className="stage-schema-popover"><SchemaFields schema={schema} schemaById={schemaById}/></div></details>;
 }
 
 function DataObjectCard({ flow, schemaById, onOpenStep }) {
-  const initialSchema = flow.stages[0]?.schema;
-  return <article className="data-object-card"><header><div><h3>{flow.title}</h3><p>{flow.description}</p></div><span>{flow.stages.length} stages</span></header><details className="initial-schema"><summary>View initial schema <span>{initialSchema?.fields?.length ?? 0} fields</span><Icon name="chevron" size={15}/></summary><SchemaFields schema={initialSchema} schemaById={schemaById}/></details><ol className="data-object-stages">{flow.stages.map((stage, index) => { const changes = (stage.step?.schemaChanges ?? []).filter((change) => ['added', 'changed'].includes(change.kind)); return <li key={`${flow.id}-${stage.stepId}-${index}`}><span className="data-stage-marker"><Icon name="flow" size={15}/></span><div className="data-stage-copy"><div className="data-stage-heading"><button onClick={() => stage.storyId && onOpenStep(stage.storyId, stage.stepId)}>{stage.step?.title ?? stage.label}<Icon name="arrow" size={13}/></button><StageSchema schema={stage.schema} schemaById={schemaById}/></div><p>{stage.description}</p><StepChangePills changes={changes}/></div>{index < flow.stages.length - 1 && <Icon name="arrow" size={16}/>}</li>; })}</ol></article>;
+  return <article className="data-object-card"><header><div><h3>{flow.title}</h3><p>{flow.description}</p></div></header><ol className="data-object-stages">{flow.stages.map((stage, index) => { const changes = (stage.step?.schemaChanges ?? []).filter((change) => ['added', 'changed'].includes(change.kind)); return <li key={`${flow.id}-${stage.stepId}-${index}`}><span className="data-stage-marker" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><div className="data-stage-copy"><div className="data-stage-heading"><button onClick={() => stage.storyId && onOpenStep(stage.storyId, stage.stepId)}>{stage.step?.title ?? stage.label}<Icon name="arrow" size={13}/></button><StageSchema schema={stage.schema} schemaById={schemaById}/></div><p>{stage.description}</p><StepChangePills changes={changes}/></div></li>; })}</ol></article>;
 }
 
 function DataFlowView({ dataFlows, schemaById, onOpenStep }) {
-  return <section className="data-flow-view" aria-label="Data object flows"><header className="data-flow-header"><div><h1>Data objects</h1><p>Follow each object through the Steps that shape it.</p></div></header><section className="data-object-section">{dataFlows.length === 0 ? <EmptyState icon="flow" title="No data objects documented" body="Add data flows to show how important objects evolve."/> : <div className="data-object-list">{dataFlows.map((flow) => <DataObjectCard flow={flow} schemaById={schemaById} onOpenStep={onOpenStep} key={flow.id}/>)}</div>}</section></section>;
+  return <section className="data-flow-view" aria-label="Data object flows"><header className="data-flow-header"><div><h1>Data flow</h1><p>Follow each object from creation to completion.</p></div></header><section className="data-object-section">{dataFlows.length === 0 ? <EmptyState icon="flow" title="No data objects documented" body="Add data flows to show how important objects evolve."/> : <div className="data-object-list">{dataFlows.map((flow) => <DataObjectCard flow={flow} schemaById={schemaById} onOpenStep={onOpenStep} key={flow.id}/>)}</div>}</section></section>;
 }
 
 function GlobalSearch({ open, stories, stepsByStory, sourceEvidence, onClose, onSelect }) {
@@ -235,6 +295,7 @@ function Workspace({ data }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [detailStepId, setDetailStepId] = useState(null);
+  const [jsonSchema, setJsonSchema] = useState(null);
   const activeStory = storyById.get(activeStoryId) ?? stories[0];
   const steps = stepsByStory[activeStory?.id] ?? [];
   const detailStep = steps.find((step) => step.id === detailStepId) ?? null;
@@ -267,8 +328,8 @@ function Workspace({ data }) {
   useEffect(() => {
     const onKeyDown = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setSearchOpen(true); return; }
-      if (event.key === 'Escape') { if (searchOpen) { setSearchOpen(false); return; } if (shortcutsOpen) { setShortcutsOpen(false); return; } if (detailStepId) { setDetailStepId(null); return; } if (expanded.has(selectedId)) { toggleStep(selectedId); return; } }
-      if (view !== 'story' || searchOpen || shortcutsOpen || detailStepId || event.metaKey || event.ctrlKey || event.altKey || ['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
+      if (event.key === 'Escape') { if (jsonSchema) { setJsonSchema(null); return; } if (searchOpen) { setSearchOpen(false); return; } if (shortcutsOpen) { setShortcutsOpen(false); return; } if (detailStepId) { setDetailStepId(null); return; } if (expanded.has(selectedId)) { toggleStep(selectedId); return; } }
+      if (view !== 'story' || jsonSchema || searchOpen || shortcutsOpen || detailStepId || event.metaKey || event.ctrlKey || event.altKey || ['INPUT', 'TEXTAREA'].includes(event.target.tagName)) return;
       if (!['ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) return;
       event.preventDefault();
       const currentIndex = Math.max(0, steps.findIndex((step) => step.id === selectedId));
@@ -280,9 +341,9 @@ function Workspace({ data }) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [detailStepId, expanded, searchOpen, selectedId, shortcutsOpen, steps, view]);
+  }, [detailStepId, expanded, jsonSchema, searchOpen, selectedId, shortcutsOpen, steps, view]);
 
-  return <div className="app-shell"><NavigationRail view={view} onOpenStory={() => setView('story')} onOpenStories={() => setView('stories')} onOpenFlow={() => setView('flow')} onOpenSearch={() => setSearchOpen(true)} onOpenHelp={() => setShortcutsOpen(true)}/><main className="workspace"><Topbar view={view} projectName={projectName} story={activeStory} metadata={metadata} diagnostics={diagnostics} onOpenStories={() => setView('stories')} onOpenSearch={() => setSearchOpen(true)}/>{view === 'stories' && <StoriesIndex stories={stories} projectName={projectName} activeStoryId={activeStoryId} onOpenStory={openStory}/>} {view === 'flow' && <DataFlowView dataFlows={dataFlows} schemaById={schemaById} onOpenStep={openStory}/>} {view === 'story' && activeStory && <div className="workspace-grid"><section className="story-canvas" aria-label={`${activeStory.title} Story`}><StoryHeader story={activeStory}/><div className="timeline-label"><span>Story timeline</span><em>Select a Step, or press Enter, to expand it</em></div><ol className="story-route">{steps.map((step, index) => <StoryStep key={step.id} step={step} previousStep={steps[index - 1]} index={index} selected={selectedId === step.id} expanded={expanded.has(step.id)} onToggle={toggleStep} operationDetails={operationDetails} schemaById={schemaById} onOpenDetail={setDetailStepId}/>)}</ol><div className="route-end"><span>{steps.at(-1)?.summary ?? 'Story complete.'}</span></div></section></div>} {!activeStory && <EmptyState title="No Stories available" body="This artifact does not contain a Story Path yet."/>}</main><GlobalSearch open={searchOpen} stories={stories} stepsByStory={stepsByStory} sourceEvidence={sourceEvidence} onClose={() => setSearchOpen(false)} onSelect={(result) => { setSearchOpen(false); if (result.storyId) openStory(result.storyId, result.stepId); }}/><ShortcutModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/><StepDetailDialog step={detailStep} operationDetails={operationDetails} schemaById={schemaById} onClose={() => setDetailStepId(null)}/></div>;
+  return <div className="app-shell"><NavigationRail view={view} onOpenStory={() => setView('story')} onOpenStories={() => setView('stories')} onOpenFlow={() => setView('flow')} onOpenSearch={() => setSearchOpen(true)} onOpenHelp={() => setShortcutsOpen(true)}/><main className="workspace"><Topbar view={view} projectName={projectName} story={activeStory} metadata={metadata} diagnostics={diagnostics} onOpenStories={() => setView('stories')} onOpenSearch={() => setSearchOpen(true)}/>{view === 'stories' && <StoriesIndex stories={stories} projectName={projectName} activeStoryId={activeStoryId} onOpenStory={openStory}/>} {view === 'flow' && <DataFlowView dataFlows={dataFlows} schemaById={schemaById} onOpenStep={openStory}/>} {view === 'story' && activeStory && <div className="workspace-grid"><section className="story-canvas" aria-label={`${activeStory.title} Story`}><StoryHeader story={activeStory}/><div className="timeline-label"><span>Story timeline</span><em>Select a Step, or press Enter, to expand it</em></div><ol className="story-route">{steps.map((step, index) => <StoryStep key={step.id} step={step} index={index} selected={selectedId === step.id} expanded={expanded.has(step.id)} onToggle={toggleStep} operationDetails={operationDetails} schemaById={schemaById} onOpenDetail={setDetailStepId} onOpenJson={(schema, direction) => setJsonSchema({ schema, direction })}/>)}</ol><div className="route-end"><span>{steps.at(-1)?.summary ?? 'Story complete.'}</span></div></section></div>} {!activeStory && <EmptyState title="No Stories available" body="This artifact does not contain a Story Path yet."/>}</main><GlobalSearch open={searchOpen} stories={stories} stepsByStory={stepsByStory} sourceEvidence={sourceEvidence} onClose={() => setSearchOpen(false)} onSelect={(result) => { setSearchOpen(false); if (result.storyId) openStory(result.storyId, result.stepId); }}/><ShortcutModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)}/><StepDetailDialog step={detailStep} operationDetails={operationDetails} onClose={() => setDetailStepId(null)}/><JsonSchemaDialog schema={jsonSchema?.schema} direction={jsonSchema?.direction} schemaById={schemaById} onClose={() => setJsonSchema(null)}/></div>;
 }
 
 function App() {

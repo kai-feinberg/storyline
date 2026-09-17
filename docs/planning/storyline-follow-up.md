@@ -10,6 +10,7 @@ This list contains work that remains useful after the current viewer overhaul. I
 - [ ] Add result virtualization and grouped filtering if generated artifacts grow beyond a few hundred Stories or Steps.
 - [ ] Add automated accessibility checks and visual snapshots across Chromium, Safari, and narrow mobile widths.
 
+
 ## Deferred product questions
 
 - [x] Keep Data flow as a separate mode with explicit Story relationships and named data-object lifecycles.
