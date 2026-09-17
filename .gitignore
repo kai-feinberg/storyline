@@ -1,6 +1,8 @@
 node_modules/
 dist/
 *.png
+!docs/screenshots/
+!docs/screenshots/*.png
 .DS_Store
 .next/
 .storyline/

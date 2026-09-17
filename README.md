@@ -17,6 +17,36 @@ We want to make unfamiliar codebases easier to understand by helping a reader:
 
 The guiding principle is: **show what the product accomplishes, then reveal the implementation when more detail is useful.**
 
+## See it in action
+
+The current prototype is a local viewer for validated Storyline artifacts. It keeps the product flow in view, then lets you move into data, source evidence, and implementation details when you need them.
+
+| Story hero | Story catalog |
+| --- | --- |
+| ![Zoomed and slightly tilted Storyline hero showing the Create a whiteboard explainer flow](docs/screenshots/story-hero-zoomed-tilted.png) | ![Stories index grouped by product area](docs/screenshots/stories-index.png) |
+| **Story hero.** A closer presentation crop keeps the product flow and first Steps readable at a glance. The [full story timeline](docs/screenshots/story-overview.png) shows the complete view. | **Stories index.** Browse mapped Stories by product area and see their Step counts and systems. |
+
+| Step details | Data flow |
+| --- | --- |
+| ![Expanded Step showing input and output schemas and high-level logic](docs/screenshots/story-step-inspector.png) | ![Data flow view showing objects across Story Steps](docs/screenshots/data-flow.png) |
+| **Step details.** Expand a Step to inspect input/output schemas, field changes, and high-level logic without losing the Story context. | **Data flow.** Trace named data objects across Steps and see where fields are added, changed, or preserved. |
+
+| Implementation trace | Search |
+| --- | --- |
+| ![Implementation trace for a selected Step](docs/screenshots/implementation-trace.png) | ![Search dialog finding a Step and source evidence](docs/screenshots/search.png) |
+| **Implementation trace.** Move from product behavior to the implementation entry point and its source evidence. | **Search.** Find Stories, Steps, and source evidence from one keyboard-accessible search surface. |
+
+## Visual comparison
+
+The current Storyline prototype and the reference dashboard solve different comprehension problems. This comparison makes the design choice explicit:
+
+| Storyline prototype | Reference dashboard |
+| --- | --- |
+| ![Storyline's zoomed hero](docs/screenshots/story-hero-zoomed-tilted.png) | ![Reference microservices dashboard](docs/screenshots/reference-microservices-dashboard.png) |
+| **Story-first.** A warm, focused timeline leads with the product outcome, then discloses data and implementation details locally. | **Structure-first.** A dark canvas exposes many system relationships at once, with persistent navigation and a guided project tour. |
+
+Storyline is optimized for answering “what does this product do?” before “which systems and files make it happen?” The reference dashboard is optimized for broad structural exploration. The difference is intentional: Storyline treats architecture as supporting evidence for a human-readable product story.
+
 ## Core model
 
 Storyline uses three clear levels:
