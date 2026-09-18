@@ -1,61 +1,78 @@
 # Storyline
 
-Storyline helps people see the story behind the code. It turns source code into understandable product stories that connect an intended outcome to the steps and implementation that produce it.
+Storyline helps you understand an unfamiliar codebase by showing what the product does before showing how the code implements it. It turns source code into readable product stories that connect outcomes to Steps, data, systems, and source evidence.
 
-The primary visualization is a **Story**: a meaningful product flow such as signing in, completing a payment, extracting information from a document, or searching for a result. Data structures, services, dependencies, and source details support the Story instead of becoming the main experience.
+Storyline answers **“What does this product do?”** before **“Which systems and files make it happen?”**
 
-## What we want to accomplish
+## Principles
 
-We want to make unfamiliar codebases easier to understand by helping a reader:
+Storyline is built around a few simple principles:
 
-- Understand the purpose and outcome of a Story first.
-- Follow the smallest useful sequence of Steps without starting at the system or data level.
-- Expand a Step locally without losing the original Story.
-- Distinguish Story progression from data dependencies and implementation calls.
-- Inspect meaningful inputs, outputs, branches, and external boundaries.
-- Trace each Step back to functions, files, services, APIs, and queries when needed.
-
-The guiding principle is: **show what the product accomplishes, then reveal the implementation when more detail is useful.**
-
-## See it in action
-
-The current prototype is a local viewer for validated Storyline artifacts. It keeps the product flow in view, then lets you move into data, source evidence, and implementation details when you need them.
-
-| Story hero | Story catalog |
-| --- | --- |
-| ![Zoomed and slightly tilted Storyline hero showing the Create a whiteboard explainer flow](docs/screenshots/story-hero-zoomed-tilted.png) | ![Stories index grouped by product area](docs/screenshots/stories-index.png) |
-| **Story hero.** A closer presentation crop keeps the product flow and first Steps readable at a glance. The [full story timeline](docs/screenshots/story-overview.png) shows the complete view. | **Stories index.** Browse mapped Stories by product area and see their Step counts and systems. |
-
-| Step details | Data flow |
-| --- | --- |
-| ![Expanded Step showing input and output schemas and high-level logic](docs/screenshots/story-step-inspector.png) | ![Data flow view showing objects across Story Steps](docs/screenshots/data-flow.png) |
-| **Step details.** Expand a Step to inspect input/output schemas, field changes, and high-level logic without losing the Story context. | **Data flow.** Trace named data objects across Steps and see where fields are added, changed, or preserved. |
-
-| Implementation trace | Search |
-| --- | --- |
-| ![Implementation trace for a selected Step](docs/screenshots/implementation-trace.png) | ![Search dialog finding a Step and source evidence](docs/screenshots/search.png) |
-| **Implementation trace.** Move from product behavior to the implementation entry point and its source evidence. | **Search.** Find Stories, Steps, and source evidence from one keyboard-accessible search surface. |
-
-## Visual comparison
-
-The current Storyline prototype and the reference dashboard solve different comprehension problems. This comparison makes the design choice explicit:
-
-| Storyline prototype | Reference dashboard |
-| --- | --- |
-| ![Storyline's zoomed hero](docs/screenshots/story-hero-zoomed-tilted.png) | ![Reference microservices dashboard](docs/screenshots/reference-microservices-dashboard.png) |
-| **Story-first.** A warm, focused timeline leads with the product outcome, then discloses data and implementation details locally. | **Structure-first.** A dark canvas exposes many system relationships at once, with persistent navigation and a guided project tour. |
-
-Storyline is optimized for answering “what does this product do?” before “which systems and files make it happen?” The reference dashboard is optimized for broad structural exploration. The difference is intentional: Storyline treats architecture as supporting evidence for a human-readable product story.
+1. **Start with the outcome.** Begin with the user or system result, not with a file tree or a list of dependencies.
+2. **Follow meaningful Steps.** Show the small sequence of actions, decisions, and results that make up a product flow.
+3. **Reveal complexity progressively.** Keep the main flow readable, then expose data, systems, branches, and implementation details when they are useful.
+4. **Preserve context.** Let you inspect one Step without losing sight of the Story it belongs to.
+5. **Separate flow from dependency.** Use the Story to show progression. Show supporting relationships as context instead of implying that every connection is a causal step.
+6. **Trace meaning to evidence.** Connect each semantic Step to the functions, files, services, APIs, and queries that support it.
+7. **Be honest about uncertainty.** Distinguish evidence from interpretation and make unknowns visible.
 
 ## Core model
 
-Storyline uses three clear levels:
+Storyline uses three levels:
 
 1. **Story:** The complete product flow and intended outcome.
 2. **Step:** One meaningful event, action, decision, or outcome within the Story.
 3. **Implementation:** The code and systems that perform or support a Step.
 
-A Story should normally contain about 3–7 meaningful Steps. Group work only when the group produces a recognizable outcome. Show dependencies as supporting context unless they are part of the Story progression.
+A Story normally contains 3–7 meaningful Steps. Data structures, dependencies, and source details support the flow instead of replacing it.
+
+## See it in action
+
+The viewer lets you move from a product outcome to the supporting data and implementation evidence while keeping the original Story in view.
+
+| Story view | Story catalog |
+| --- | --- |
+| ![Storyline hero showing the Create a whiteboard explainer flow](docs/screenshots/story-hero-zoomed-tilted.png) | ![Stories index grouped by product area](docs/screenshots/stories-index.png) |
+| **Story view.** Follow a product flow from its starting point to its outcome. | **Story catalog.** Browse Stories by product area and see their Steps and systems. |
+
+| Step details | Data flow |
+| --- | --- |
+| ![Expanded Step showing input and output schemas and high-level logic](docs/screenshots/story-step-inspector.png) | ![Data flow view showing objects across Story Steps](docs/screenshots/data-flow.png) |
+| **Step details.** Inspect inputs, outputs, field changes, and high-level logic for one Step. | **Data flow.** Trace named data objects across Steps and see how they change. |
+
+| Implementation trace | Search |
+| --- | --- |
+| ![Implementation trace for a selected Step](docs/screenshots/implementation-trace.png) | ![Search dialog finding a Step and source evidence](docs/screenshots/search.png) |
+| **Implementation trace.** Move from product behavior to the code and source evidence behind it. | **Search.** Find Stories, Steps, and source evidence from one keyboard-accessible search surface. |
+
+## Comparison
+
+Storyline and Understand Anything help people understand code in different ways. Understand Anything presents a broad graph of files, functions, classes, and dependencies. That kind of graph can be difficult to understand and navigate when many relationships appear at once.
+
+Storyline starts with product behavior. It presents a focused Story first, then reveals the structural graph, data, and source evidence behind each Step as needed.
+
+| Storyline | Understand Anything |
+| --- | --- |
+| ![Storyline behavior-first view](docs/screenshots/story-hero-zoomed-tilted.png) | ![Understand Anything structural graph](docs/screenshots/reference-microservices-dashboard.png) |
+| **Behavior first.** Understand the product outcome and its meaningful Steps before exploring implementation detail. | **Structure first.** Explore a broad repository graph of connected code and systems. |
+
+## Quick start
+
+From the repository that you want to understand, ask an agent with the Storyline plugin installed:
+
+```text
+Use Storyline to create and open a visualization of this repository.
+```
+
+The `$storyline-create` skill initializes the workspace, analyzes the source, generates and validates the artifact, and opens the local viewer.
+
+To open an existing artifact from this repository:
+
+```bash
+node plugins/storyline/scripts/storyline.mjs open examples/storysketch
+```
+
+See [How Storyline Works](docs/how-storyline-works.md) for the full command flow, generated files, review process, and current limitations.
 
 ## Example
 
@@ -77,78 +94,49 @@ Prepare payment confirmation
 └ queueMessage()
 ```
 
-Selecting a Step can reveal its inputs, outputs, branches, external systems, and source location without replacing the Story.
+Selecting a Step reveals its inputs, outputs, branches, external systems, and source location without hiding the Story.
 
-## Start here
-
-Read [How Storyline Works](docs/how-storyline-works.md) for the repository layout, command flow, generated files, agent review step, viewer server, and current limitations.
-
-The agent method for selecting and shaping Stories is in the [Storyline Guidelines](plugins/storyline/skills/storyline-generate/references/storyline-guidelines.md). The canonical product terms are in the [Storyline Ubiquitous Language](docs/product/ubiquitous-language.md).
-
-## Visualization priorities
-
-1. **Stories** provide purpose, context, and the complete flow.
-2. **Steps** explain the meaningful progression through a Story.
-3. **Implementation** connects each Step to code, systems, and source evidence.
-
-The current viewer also provides Data flow and Search modes. Data flow shows supporting Story relationships and named data objects as they change across Steps. Search finds Stories, Steps, and source evidence from one keyboard-accessible command. The active design follow-up list is in [Storyline follow-up](docs/planning/storyline-follow-up.md).
-
-## Current priorities
-
-- Define a reliable model for Stories, Steps, metadata, and Implementation evidence.
-- Build an analyzer that reconstructs product intent before it chooses labels or grouping.
-- Identify product Stories and connect their Steps to the code paths that implement them.
-- Generate clear Step labels with consistent grammar.
-- Support independent disclosure of dependencies, branches, and Implementation.
-- Add quality checks for comprehension, grouping, abstraction level, arrow meaning, uncertainty, and evidence grounding.
-- Test the approach against representative Stories such as payments, document extraction, search, renewals, and authentication.
-
-## Non-goals
-
-This project is not intended to make a data model, system architecture diagram, or complete call graph the primary experience. It is also not intended to expose every local variable or replace source code with a simplified diagram. Storyline should remain human-centered, useful, traceable, and honest about uncertainty.
-
-## Status
-
-The installable implementation lives in [`plugins/storyline`](plugins/storyline). It includes one end-to-end orchestration skill, two specialist skills, artifact validation, tests, and a bundled local viewer. Agents perform repository understanding and artifact generation directly from source.
-
-For normal use, give the agent one request:
-
-```text
-Use Storyline to create and open a visualization of this repository.
-```
-
-This invokes `$storyline-create`, which initializes the workspace, runs understanding and generation as needed, validates the artifact, and opens the viewer.
-
-Use the specialist skills only when you want manual control over one phase:
+For manual control, use the specialist skills:
 
 ```text
 $storyline-understand
 $storyline-generate
 ```
 
-You can also open an existing validated artifact directly:
+The [Storyline Guidelines](plugins/storyline/skills/storyline-generate/references/storyline-guidelines.md) explain how Stories are selected and shaped. The [Ubiquitous Language](docs/product/ubiquitous-language.md) defines the canonical product terms.
 
-```bash
-node plugins/storyline/scripts/storyline.mjs open examples/storysketch
+## Repository layout
+
+```text
+plugins/storyline/             Installable plugin, skills, CLI, viewer, and tests
+prototypes/redesign-viewer/    Editable React and Vite viewer source
+examples/storysketch/          Example application and Storyline artifact
+docs/                          Product, design, research, and planning documents
 ```
 
-## Viewer development
+## Develop the viewer
 
-The editable viewer source is in `prototypes/redesign-viewer/`. The plugin runs the compiled copy in `plugins/storyline/assets/viewer/`.
-
-Start Vite while changing the interface:
+Install the prototype dependencies, then start Vite:
 
 ```bash
+pnpm --dir prototypes/redesign-viewer install
 pnpm --dir prototypes/redesign-viewer dev
 ```
 
-The prototype dev server serves the checked-in example artifact at `/api/artifact`. Viewer state is shareable through URL parameters for the active view, Story, selected Step, optional quick context, and focused detail modal.
+The development server serves the checked-in example artifact at `/api/artifact`. Viewer state is stored in URL parameters so a Story, Step, context, or detail view can be shared.
 
-After a UI change, rebuild and publish the viewer into the plugin:
+After a viewer change, rebuild the plugin copy and run the tests:
 
 ```bash
+pnpm --dir plugins/storyline install
 pnpm --dir plugins/storyline build:viewer
-node --test plugins/storyline/tests/*.test.mjs
+pnpm --dir plugins/storyline test
 ```
 
-The build command replaces old hashed assets. Commit the prototype source and the rebuilt plugin assets together.
+Commit the prototype source and rebuilt assets together. The build removes obsolete hashed assets.
+
+## Project direction
+
+Storyline is not a complete call graph, a data-model browser, or a replacement for source code. It keeps the product outcome primary and shows architecture as traceable evidence.
+
+See the [product definition](docs/product/product.md), [active follow-up list](docs/planning/storyline-follow-up.md), and [design system](docs/design/design-system.md) for current direction.
