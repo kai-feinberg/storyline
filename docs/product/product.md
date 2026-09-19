@@ -38,7 +38,7 @@ Readers begin with a user-facing story, such as signing in, completing a payment
 - The product should remain human-centered, semantically useful, traceable, and honest about uncertainty.
 - The product intends to support all repositories and programming languages, and eventually non-code material as well.
 - An LLM generates the graph data.
-- The current implementation is an installable Codex plugin with a Node CLI and bundled local viewer. The richer Vite + React redesign remains a visual prototype.
+- The current implementation is an installable Codex plugin with a Node CLI and bundled local viewer. The viewer source lives in the separate Vite + React `viewer/` package and is compiled into the plugin.
 
 ## Brand Commitments
 

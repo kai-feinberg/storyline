@@ -66,10 +66,10 @@ Use Storyline to create and open a visualization of this repository.
 
 The `$storyline-create` skill initializes the workspace, analyzes the source, generates and validates the artifact, and opens the local viewer.
 
-To open an existing artifact from this repository:
+To open the checked-in Showcase artifact:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs open examples/storysketch
+node plugins/storyline/scripts/storyline.mjs open-artifact showcase/storysketch/visualization.json
 ```
 
 See [How Storyline Works](docs/how-storyline-works.md) for the full command flow, generated files, review process, and current limitations.
@@ -108,22 +108,22 @@ The [Storyline Guidelines](plugins/storyline/skills/storyline-generate/reference
 ## Repository layout
 
 ```text
-plugins/storyline/             Installable plugin, skills, CLI, viewer, and tests
-prototypes/redesign-viewer/    Editable React and Vite viewer source
-examples/storysketch/          Example application and Storyline artifact
+plugins/storyline/             Installable plugin, skills, CLI, bundled viewer, and tests
+viewer/                        Editable React and Vite viewer source
+showcase/                      Landing page and artifact-only examples
 docs/                          Product, design, research, and planning documents
 ```
 
 ## Develop the viewer
 
-Install the prototype dependencies, then start Vite:
+Install the viewer dependencies, then start Vite:
 
 ```bash
-pnpm --dir prototypes/redesign-viewer install
-pnpm --dir prototypes/redesign-viewer dev
+pnpm --dir viewer install
+pnpm --dir viewer dev
 ```
 
-The development server serves the checked-in example artifact at `/api/artifact`. Viewer state is stored in URL parameters so a Story, Step, context, or detail view can be shared.
+The development server serves the Showcase artifact at `/api/artifact`. Viewer state is stored in URL parameters so a Story, Step, context, or detail view can be shared.
 
 After a viewer change, rebuild the plugin copy and run the tests:
 
@@ -133,7 +133,7 @@ pnpm --dir plugins/storyline build:viewer
 pnpm --dir plugins/storyline test
 ```
 
-Commit the prototype source and rebuilt assets together. The build removes obsolete hashed assets.
+Commit the viewer source and rebuilt plugin assets together. The build removes obsolete hashed assets.
 
 ## Project direction
 

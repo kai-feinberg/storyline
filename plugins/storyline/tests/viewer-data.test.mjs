@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deriveSchemaChanges } from '../../../prototypes/redesign-viewer/src/viewer-data.js';
+import { deriveSchemaChanges } from '../../../viewer/src/viewer-data.js';
 
 test('derives conservative structural schema changes', () => {
   const input = {

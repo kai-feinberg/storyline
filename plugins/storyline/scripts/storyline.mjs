@@ -9,10 +9,10 @@ import { dataPath, initProject, readJson, stampArtifact, status, validateArtifac
 
 const args = process.argv.slice(2);
 const command = args.shift();
-const commands = ['init', 'stamp', 'validate', 'view', 'open', 'status'];
+const commands = ['init', 'stamp', 'validate', 'view', 'open', 'open-artifact', 'status'];
 
 if (!commands.includes(command)) {
-  console.error(`Usage: storyline <${commands.join('|')}> [project-root] [--no-open] [--port number]`);
+  console.error(`Usage: storyline <${commands.join('|')}> [project-root|artifact-file] [--no-open] [--port number]`);
   console.error('Repository understanding and artifact generation are performed by the storyline-understand and storyline-generate agent skills.');
   process.exit(2);
 }
@@ -33,7 +33,8 @@ function parseArguments(values) {
     else if (parsed.project) throw new Error(`Unexpected argument: ${argument}`);
     else parsed.project = argument;
   }
-  if (!['view', 'open'].includes(command) && (parsed.noOpen || parsed.port)) throw new Error(`${command} does not accept viewer options`);
+  if (!['view', 'open', 'open-artifact'].includes(command) && (parsed.noOpen || parsed.port)) throw new Error(`${command} does not accept viewer options`);
+  if (command === 'open-artifact' && !parsed.project) throw new Error('open-artifact requires an artifact file');
   return parsed;
 }
 
@@ -52,13 +53,18 @@ function loadArtifact() {
   return validateArtifact(readJson(artifactPath), { root, verifyEvidence: true, verifyFreshness: true });
 }
 
+function loadStandaloneArtifact(file) {
+  const artifactPath = path.resolve(file);
+  if (!fs.existsSync(artifactPath)) throw new Error(`Missing ${artifactPath}.`);
+  return validateArtifact(readJson(artifactPath), { verifyEvidence: false, verifyFreshness: false });
+}
+
 function report(message, payload = {}) {
   if (options.json) console.log(JSON.stringify({ command, status: 'success', ...payload }));
   else console.log(message);
 }
 
-function startViewer() {
-  const artifact = loadArtifact();
+function startViewer(artifact) {
   const token = crypto.randomBytes(24).toString('hex');
   const requestedPort = options.port;
   const viewerRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'viewer');
@@ -101,4 +107,5 @@ if (command === 'stamp') {
 }
 if (command === 'validate') { const artifact = loadArtifact(); report(`Valid Storyline artifact: ${artifact.stories.length} stories, ${artifact.steps.length} steps`, { counts: { domains: artifact.domains.length, stories: artifact.stories.length, steps: artifact.steps.length } }); }
 if (command === 'status') report(JSON.stringify(status(root), null, 2), { files: status(root) });
-if (command === 'view' || command === 'open') startViewer();
+if (command === 'view' || command === 'open') startViewer(loadArtifact());
+if (command === 'open-artifact') startViewer(loadStandaloneArtifact(options.project));

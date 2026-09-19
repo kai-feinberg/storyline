@@ -23,10 +23,10 @@ Validation and viewing stop when the current source fingerprint differs from the
 
 ## Update the viewer
 
-Edit the viewer source in `../../prototypes/redesign-viewer/`. For local UI development, run:
+Edit the viewer source in `../../viewer/`. For local UI development, run:
 
 ```bash
-pnpm --dir prototypes/redesign-viewer dev
+pnpm --dir viewer dev
 ```
 
 Publish the current UI into the plugin after each viewer change:
@@ -43,4 +43,4 @@ Verify the plugin after publishing:
 pnpm --dir plugins/storyline test
 ```
 
-The installed plugin uses only `assets/viewer/`. It does not load files from `prototypes/` at runtime.
+The installed plugin uses only `assets/viewer/`. It does not load files from `viewer/` at runtime.

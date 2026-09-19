@@ -5,7 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { sourceMetadata } from '../scripts/artifact.mjs';
+
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
 test('serves the redesigned viewer and protected artifact', async (context) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'storyline-viewer-'));
@@ -23,8 +26,8 @@ test('serves the redesigned viewer and protected artifact', async (context) => {
     relationships: [], diagnostics: [],
   }));
 
-  const cli = path.resolve('plugins/storyline/scripts/storyline.mjs');
-  const child = spawn(process.execPath, [cli, 'open', root, '--no-open'], { cwd: path.resolve('.') });
+  const cli = path.join(repositoryRoot, 'plugins/storyline/scripts/storyline.mjs');
+  const child = spawn(process.execPath, [cli, 'open', root, '--no-open'], { cwd: repositoryRoot });
   context.after(() => { child.kill(); fs.rmSync(root, { recursive: true, force: true }); });
   let output = '';
   child.stdout.setEncoding('utf8');
@@ -47,4 +50,23 @@ test('serves the redesigned viewer and protected artifact', async (context) => {
   const artifactResponse = await fetch(new URL(`/api/artifact${new URL(url).search}`, url));
   assert.equal(artifactResponse.status, 200);
   assert.equal((await artifactResponse.json()).project.name, 'Viewer test');
+});
+
+test('serves a checked-in Showcase artifact without its source repository', async (context) => {
+  const artifactPath = path.join(repositoryRoot, 'showcase/storysketch/visualization.json');
+  const cli = path.join(repositoryRoot, 'plugins/storyline/scripts/storyline.mjs');
+  const child = spawn(process.execPath, [cli, 'open-artifact', artifactPath, '--no-open'], { cwd: repositoryRoot });
+  context.after(() => child.kill());
+  let output = '';
+  child.stdout.setEncoding('utf8');
+  child.stdout.on('data', (chunk) => { output += chunk; });
+  await Promise.race([
+    once(child.stdout, 'data'),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Showcase viewer did not start')), 3000)),
+  ]);
+  const url = output.match(/Storyline viewer: (\S+)/)?.[1];
+  assert.ok(url);
+  const artifactResponse = await fetch(new URL(`/api/artifact${new URL(url).search}`, url));
+  assert.equal(artifactResponse.status, 200);
+  assert.equal((await artifactResponse.json()).project.name, 'StorySketch');
 });

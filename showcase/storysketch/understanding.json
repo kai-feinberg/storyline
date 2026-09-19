@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "project": {
+    "name": "StorySketch",
+    "root": ".",
+    "purpose": "Turn a written script into an editable, narrated whiteboard explainer video.",
+    "languages": ["TypeScript"],
+    "frameworks": ["Next.js", "React", "Remotion", "Drizzle ORM"],
+    "applications": ["StorySketch web application", "Remotion render sandbox"],
+    "analyzedAt": "2026-08-16T00:00:00-05:00"
+  },
+  "architecture": {
+    "summary": "A Next.js editor calls authenticated API routes for scene planning, SVG generation, narration, project persistence, and video rendering. OpenRouter creates scene plans and artwork, ElevenLabs creates timed narration, PostgreSQL stores projects, Vercel Blob stores media, and Remotion previews and renders the result.",
+    "components": [
+      {"id": "component:editor", "name": "StorySketch editor", "kind": "application", "responsibility": "Collect the script, manage scenes and options, preview the composition, and start exports.", "evidenceIds": ["evidence:editor-create", "evidence:preview-builder"]},
+      {"id": "component:generation-api", "name": "Generation API", "kind": "service", "responsibility": "Plan scenes and generate visual and audio assets.", "evidenceIds": ["evidence:parse-scenes-route", "evidence:generate-svg-route", "evidence:generate-audio-route"]},
+      {"id": "component:render-api", "name": "Render API", "kind": "service", "responsibility": "Render the Remotion composition and publish the exported video.", "evidenceIds": ["evidence:render-route"]}
+    ],
+    "boundaries": ["Browser to Next.js API", "Next.js API to OpenRouter", "Next.js API to ElevenLabs", "Next.js API to Vercel Blob", "Next.js API to PostgreSQL", "Render API to Vercel Sandbox"],
+    "dataStores": ["PostgreSQL project store", "Vercel Blob media store"],
+    "externalSystems": ["OpenRouter", "ElevenLabs", "Vercel Sandbox", "Vercel Blob"]
+  },
+  "concepts": [
+    {"id": "concept:project", "name": "Project", "definition": "A creator-owned video draft with a title, source script, voice, scenes, and optional completed render.", "rules": ["Project access is restricted to the authenticated owner.", "Saving an edit clears any prior render because the render no longer matches the project."], "evidenceIds": ["evidence:project-schema", "evidence:project-update"]},
+    {"id": "concept:scene", "name": "Scene", "definition": "An ordered section of the script with selectable artwork, narration, and drawing timing.", "rules": ["A scene can have three generated visual options.", "Narration duration retimes the drawing strokes."], "evidenceIds": ["evidence:scene-types", "evidence:editor-generate-visuals", "evidence:editor-generate-audio"]},
+    {"id": "concept:visual-option", "name": "Visual option", "definition": "One generated SVG interpretation of a scene in a named variation style.", "rules": ["The editor requests Minimal, Story, and Process options in parallel."], "evidenceIds": ["evidence:visual-presets", "evidence:editor-generate-visuals"]},
+    {"id": "concept:render", "name": "Render", "definition": "A downloadable MP4 that represents a specific saved project signature.", "rules": ["A completed render is saved only when project ID and render signature are supplied."], "evidenceIds": ["evidence:render-route", "evidence:project-schema"]}
+  ],
+  "entryPoints": [
+    {"id": "entry:create-from-script", "kind": "ui", "name": "Create scenes from script", "trigger": "Creator submits a non-empty project script", "summary": "Plans scenes, then starts visual and narration generation.", "evidenceIds": ["evidence:editor-create"]},
+    {"id": "entry:edit-project", "kind": "ui", "name": "Edit project", "trigger": "Creator changes project or scene content", "summary": "Updates the current draft and autosaves it.", "evidenceIds": ["evidence:autosave", "evidence:project-update"]},
+    {"id": "entry:export-video", "kind": "ui", "name": "Export video", "trigger": "Creator selects Export Video", "summary": "Starts a streamed remote render and returns a download URL.", "evidenceIds": ["evidence:render-controls", "evidence:render-hook", "evidence:render-route"]}
+  ],
+  "behaviors": [
+    {
+      "id": "behavior:create-explainer",
+      "name": "Create a whiteboard explainer",
+      "goal": "Convert a source script into an editable sequence of illustrated and narrated scenes.",
+      "trigger": "A creator submits a non-empty script.",
+      "outcome": "The editor contains planned scenes with selectable whiteboard visuals, narration, synchronized drawing timing, and a preview.",
+      "actors": ["creator"],
+      "entryPointIds": ["entry:create-from-script"],
+      "stages": [
+        {"id": "stage:create:submit", "name": "Script submitted", "summary": "The creator starts scene creation with a title and script.", "kind": "event", "inputs": ["Project title", "Script"], "outputs": ["Scene planning request"], "implementation": ["startProjectFromScript"], "evidenceIds": ["evidence:editor-create"]},
+        {"id": "stage:create:plan", "name": "Plan storyboard scenes", "summary": "The system asks OpenRouter for an ordered scene plan and validates the result.", "kind": "action", "inputs": ["Project title", "Script"], "outputs": ["Scene drafts"], "implementation": ["POST /api/parse-scenes", "extractScenesFromModelContent"], "evidenceIds": ["evidence:parse-scenes-route"]},
+        {"id": "stage:create:visuals", "name": "Generate scene visuals", "summary": "The system generates three SVG options for each scene and converts each SVG into drawable strokes.", "kind": "action", "inputs": ["Scene text", "Visual variation"], "outputs": ["Visual options", "Timed strokes"], "implementation": ["generateSceneSvgFromDraft", "POST /api/generate-svg", "buildSceneFromSvg"], "evidenceIds": ["evidence:editor-generate-visuals", "evidence:generate-svg-route", "evidence:svg-tracing"]},
+        {"id": "stage:create:audio", "name": "Generate scene narration", "summary": "The system creates timed speech, stores the audio, and fits drawing time to its duration.", "kind": "action", "inputs": ["Scene text", "Selected voice"], "outputs": ["Audio URL", "Alignment", "Retimed strokes"], "implementation": ["generateSceneAudioFromDraft", "POST /api/generate-audio", "fitSceneDurationToFrames"], "evidenceIds": ["evidence:editor-generate-audio", "evidence:generate-audio-route", "evidence:retime-strokes"]},
+        {"id": "stage:create:ready", "name": "Explainer draft ready", "summary": "The scenes can be reviewed as one Remotion composition.", "kind": "outcome", "inputs": ["Prepared scenes"], "outputs": ["Project preview"], "implementation": ["buildPreviewProject", "ProjectVideo"], "evidenceIds": ["evidence:preview-builder", "evidence:project-video"]}
+      ],
+      "alternatePaths": ["A creator can regenerate one scene or select a different visual option without rebuilding the full project."],
+      "failureModes": ["Empty scripts are rejected in the editor.", "Generation errors are recorded on the affected scene."],
+      "status": "confirmed",
+      "evidenceIds": ["evidence:editor-create", "evidence:parse-scenes-route", "evidence:generate-svg-route", "evidence:generate-audio-route"]
+    },
+    {
+      "id": "behavior:save-project",
+      "name": "Save and restore a project",
+      "goal": "Preserve a creator's current editing state for later work.",
+      "trigger": "The editor loads or the creator changes the current project.",
+      "outcome": "The creator sees the latest owned project and edits are stored after a short delay.",
+      "actors": ["creator"],
+      "entryPointIds": ["entry:edit-project"],
+      "stages": [
+        {"id": "stage:save:load", "name": "Owned projects requested", "summary": "The editor requests the creator's projects and selects the most recently updated one.", "kind": "event", "inputs": ["Authenticated session"], "outputs": ["Project list", "Current project"], "implementation": ["bootstrapProjects", "GET /api/projects"], "evidenceIds": ["evidence:editor-bootstrap", "evidence:projects-route"]},
+        {"id": "stage:save:edit", "name": "Project changed", "summary": "The creator changes project, scene, voice, visual, or audio state.", "kind": "event", "inputs": ["Editor change"], "outputs": ["Dirty project snapshot"], "implementation": ["Editor state"], "evidenceIds": ["evidence:autosave"]},
+        {"id": "stage:save:persist", "name": "Save project draft", "summary": "The editor sends a sanitized draft after the autosave delay.", "kind": "action", "inputs": ["Project draft"], "outputs": ["Stored project"], "implementation": ["saveProject", "PUT /api/projects/:projectId"], "evidenceIds": ["evidence:autosave", "evidence:project-update"]},
+        {"id": "stage:save:stored", "name": "Project draft stored", "summary": "The latest editor state is available for a later session.", "kind": "outcome", "inputs": ["Stored project"], "outputs": ["Restorable project"], "implementation": ["toProjectDetail"], "evidenceIds": ["evidence:projects-route", "evidence:project-update"]}
+      ],
+      "alternatePaths": ["If no project exists, the editor creates a starter project.", "The creator can create, switch, or delete projects."],
+      "failureModes": ["Requests without an authenticated session are rejected.", "A project outside the creator's ownership is not returned or changed."],
+      "status": "confirmed",
+      "evidenceIds": ["evidence:editor-bootstrap", "evidence:autosave", "evidence:projects-route", "evidence:project-update"]
+    },
+    {
+      "id": "behavior:export-video",
+      "name": "Export a whiteboard video",
+      "goal": "Create a downloadable MP4 from the current project composition.",
+      "trigger": "The creator selects Export Video.",
+      "outcome": "A public video URL is returned and associated with the matching project version.",
+      "actors": ["creator"],
+      "entryPointIds": ["entry:export-video"],
+      "stages": [
+        {"id": "stage:export:requested", "name": "Video export requested", "summary": "The editor sends the current Remotion composition and project identity.", "kind": "event", "inputs": ["Project composition", "Project ID", "Render signature"], "outputs": ["Render request"], "implementation": ["renderMedia"], "evidenceIds": ["evidence:render-hook"]},
+        {"id": "stage:export:render", "name": "Render project video", "summary": "A Vercel sandbox renders all scene sequences as an H.264 video while progress streams to the editor.", "kind": "action", "inputs": ["Composition props"], "outputs": ["Sandbox video file", "Progress events"], "implementation": ["runRender", "renderMediaOnVercel", "ProjectVideo"], "evidenceIds": ["evidence:render-route", "evidence:project-video"]},
+        {"id": "stage:export:upload", "name": "Publish rendered video", "summary": "The system uploads the rendered file to Vercel Blob and saves its URL for the matching project version.", "kind": "action", "inputs": ["Sandbox video file"], "outputs": ["Video URL", "File size"], "implementation": ["uploadToVercelBlob", "projects update"], "evidenceIds": ["evidence:render-route"]},
+        {"id": "stage:export:ready", "name": "Video export ready", "summary": "The editor shows the completed export for download.", "kind": "outcome", "inputs": ["Video URL", "File size"], "outputs": ["Downloadable video"], "implementation": ["SSE done message", "DownloadButton"], "evidenceIds": ["evidence:render-hook", "evidence:render-controls"]}
+      ],
+      "alternatePaths": [],
+      "failureModes": ["Render errors are streamed to the editor.", "The sandbox is stopped after success or failure."],
+      "status": "confirmed",
+      "evidenceIds": ["evidence:render-hook", "evidence:render-route", "evidence:render-controls"]
+    }
+  ],
+  "evidence": [
+    {"id": "evidence:visual-presets", "path": "src/app/app/page.tsx", "lineStart": 52, "lineEnd": 77, "symbol": "VISUAL_VARIATION_PRESETS", "kind": "source", "supports": "Defines the three generated visual directions.", "status": "confirmed"},
+    {"id": "evidence:scene-types", "path": "src/lib/scene-planning.ts", "lineStart": 6, "lineEnd": 34, "symbol": "SceneDraft", "kind": "source", "supports": "Defines scene visual, narration, timing, and error state.", "status": "confirmed"},
+    {"id": "evidence:preview-builder", "path": "src/lib/scene-planning.ts", "lineStart": 186, "lineEnd": 225, "symbol": "buildPreviewProject", "kind": "source", "supports": "Builds an ordered whiteboard project from prepared scene drafts.", "status": "confirmed"},
+    {"id": "evidence:editor-bootstrap", "path": "src/app/app/page.tsx", "lineStart": 460, "lineEnd": 534, "symbol": "bootstrapProjects", "kind": "ui", "supports": "Loads the latest owned project or creates the first project.", "status": "confirmed"},
+    {"id": "evidence:autosave", "path": "src/app/app/page.tsx", "lineStart": 803, "lineEnd": 857, "symbol": "saveProject", "kind": "ui", "supports": "Sanitizes and saves project changes after a 1.2-second delay.", "status": "confirmed"},
+    {"id": "evidence:editor-generate-visuals", "path": "src/app/app/page.tsx", "lineStart": 965, "lineEnd": 1059, "symbol": "generateSceneSvgFromDraft", "kind": "ui", "supports": "Generates three visual options per scene and selects one.", "status": "confirmed"},
+    {"id": "evidence:editor-generate-audio", "path": "src/app/app/page.tsx", "lineStart": 1061, "lineEnd": 1168, "symbol": "generateSceneAudioFromDraft", "kind": "ui", "supports": "Generates narration and retimes selected artwork to its duration.", "status": "confirmed"},
+    {"id": "evidence:editor-create", "path": "src/app/app/page.tsx", "lineStart": 1170, "lineEnd": 1226, "symbol": "startProjectFromScript", "kind": "ui", "supports": "Creates scene drafts from a script and starts visual and audio generation together.", "status": "confirmed"},
+    {"id": "evidence:parse-scenes-route", "path": "src/app/api/parse-scenes/route.ts", "lineStart": 67, "lineEnd": 163, "symbol": "POST", "kind": "route", "supports": "Uses OpenRouter to return a validated storyboard scene plan.", "status": "confirmed"},
+    {"id": "evidence:generate-svg-route", "path": "src/app/api/generate-svg/route.ts", "lineStart": 72, "lineEnd": 171, "symbol": "POST", "kind": "route", "supports": "Uses OpenRouter to generate and normalize an SVG for a scene.", "status": "confirmed"},
+    {"id": "evidence:generate-audio-route", "path": "src/app/api/generate-audio/route.ts", "lineStart": 26, "lineEnd": 153, "symbol": "POST", "kind": "route", "supports": "Uses ElevenLabs to create timed speech and stores it in Vercel Blob.", "status": "confirmed"},
+    {"id": "evidence:svg-tracing", "path": "src/lib/svg-to-whiteboard.ts", "lineStart": 476, "lineEnd": 560, "symbol": "buildSceneFromSvg", "kind": "source", "supports": "Converts drawable SVG elements into ordered timed whiteboard strokes.", "status": "confirmed"},
+    {"id": "evidence:retime-strokes", "path": "src/lib/svg-to-whiteboard.ts", "lineStart": 563, "lineEnd": 647, "symbol": "fitSceneDurationToFrames", "kind": "source", "supports": "Scales stroke durations and gaps to match narration length.", "status": "confirmed"},
+    {"id": "evidence:project-video", "path": "src/remotion/whiteboard/ProjectVideo.tsx", "lineStart": 11, "lineEnd": 46, "symbol": "ProjectVideo", "kind": "source", "supports": "Places scenes in sequence and derives full composition duration.", "status": "confirmed"},
+    {"id": "evidence:render-hook", "path": "src/helpers/use-rendering.ts", "lineStart": 53, "lineEnd": 132, "symbol": "renderMedia", "kind": "ui", "supports": "Starts an export and converts streamed progress, completion, and error events into editor state.", "status": "confirmed"},
+    {"id": "evidence:render-route", "path": "src/app/api/render/route.ts", "lineStart": 50, "lineEnd": 206, "symbol": "POST", "kind": "route", "supports": "Renders in a sandbox, uploads the video, saves matching render metadata, and streams progress.", "status": "confirmed"},
+    {"id": "evidence:render-controls", "path": "src/components/RenderControls.tsx", "lineStart": 73, "lineEnd": 123, "symbol": "RenderControls", "kind": "ui", "supports": "Shows export progress, errors, and the completed download.", "status": "confirmed"},
+    {"id": "evidence:projects-route", "path": "src/app/api/projects/route.ts", "lineStart": 17, "lineEnd": 87, "symbol": "GET and POST", "kind": "route", "supports": "Lists owned projects and creates a starter project.", "status": "confirmed"},
+    {"id": "evidence:project-update", "path": "src/app/api/projects/[projectId]/route.ts", "lineStart": 22, "lineEnd": 110, "symbol": "getOwnedProject and PUT", "kind": "route", "supports": "Restricts access by owner and saves sanitized drafts while invalidating stale renders.", "status": "confirmed"},
+    {"id": "evidence:project-schema", "path": "src/db/app-schema.ts", "lineStart": 7, "lineEnd": 33, "symbol": "projects", "kind": "persistence", "supports": "Stores project content, scenes, selected voice, and render metadata per user.", "status": "confirmed"}
+  ],
+  "unknowns": [],
+  "diagnostics": [
+    {"severity": "info", "message": "The repository README still describes the upstream Remotion template and does not document the StorySketch product behavior."}
+  ]
+}

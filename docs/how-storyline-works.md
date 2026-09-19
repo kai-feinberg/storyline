@@ -40,8 +40,8 @@ plugins/storyline/
 ├── assets/viewer/index.html
 └── tests/artifact.test.mjs
 
-examples/storysketch/          end-to-end example repository
-prototypes/redesign-viewer/   richer viewer design reference
+viewer/                        editable React and Vite viewer source
+showcase/                      landing page and artifact-only examples
 archive/                       inactive history
 ```
 
@@ -194,7 +194,7 @@ node plugins/storyline/scripts/storyline.mjs <command> <project-root>
 Creates the `.storyline/` workspace and its local README. Both skills put all generated Storyline data in this directory:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs init examples/storysketch
+node plugins/storyline/scripts/storyline.mjs init <repository-root>
 ```
 
 The skills can also create the directory themselves.
@@ -204,7 +204,7 @@ The skills can also create the directory themselves.
 Validates an agent-generated visualization:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs validate examples/storysketch
+node plugins/storyline/scripts/storyline.mjs validate <repository-root>
 ```
 
 It checks:
@@ -225,7 +225,7 @@ Validation does not decide whether an interpretation is good. That remains the a
 Both commands validate the existing artifact and start the viewer:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs open examples/storysketch
+node plugins/storyline/scripts/storyline.mjs open <repository-root>
 ```
 
 Options:
@@ -243,12 +243,22 @@ http://127.0.0.1:4317/?token=<random-token>
 
 Do not open `assets/viewer/index.html` directly. It requires the server’s `/api/artifact` endpoint.
 
+### `open-artifact`
+
+Serves a checked-in artifact without requiring the original source repository:
+
+```bash
+node plugins/storyline/scripts/storyline.mjs open-artifact showcase/storysketch/visualization.json
+```
+
+This command validates the artifact schema and internal references. It intentionally skips source-file and freshness checks because Showcase examples contain the artifact, not the repository that produced it.
+
 ### `status`
 
 Reports whether the two agent outputs exist:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs status examples/storysketch
+node plugins/storyline/scripts/storyline.mjs status <repository-root>
 ```
 
 ## Complete agent workflow
@@ -282,16 +292,16 @@ Run validator tests:
 pnpm --dir plugins/storyline test
 ```
 
-Validate the StorySketch artifact:
+Validate a repository artifact:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs validate examples/storysketch
+node plugins/storyline/scripts/storyline.mjs validate <repository-root>
 ```
 
-Start its viewer without opening the system browser:
+Start the Showcase viewer without opening the system browser:
 
 ```bash
-node plugins/storyline/scripts/storyline.mjs view examples/storysketch --no-open --port 4317
+node plugins/storyline/scripts/storyline.mjs open-artifact showcase/storysketch/visualization.json --no-open --port 4317
 ```
 
 ## Current limitations

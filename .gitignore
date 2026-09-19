@@ -15,7 +15,6 @@ coverage/
 
 # Local installers and generated dependency metadata
 *.dmg
-/examples/storysketch/package-lock.json
 
 # Local documents
 c928b310-8141-4aba-91a6-01e29265810a.pdf

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = path.resolve(pluginRoot, '..', '..');
-const viewerSource = path.join(repositoryRoot, 'prototypes', 'redesign-viewer');
+const viewerSource = path.join(repositoryRoot, 'viewer');
 const viewerDist = path.join(viewerSource, 'dist');
 const pluginViewer = path.join(pluginRoot, 'assets', 'viewer');
 

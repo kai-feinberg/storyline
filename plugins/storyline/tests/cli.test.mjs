@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
-const cli = path.resolve('plugins/storyline/scripts/storyline.mjs');
-const run = (...args) => spawnSync(process.execPath, [cli, ...args], { cwd: path.resolve('.'), encoding: 'utf8' });
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+const cli = path.join(repositoryRoot, 'plugins/storyline/scripts/storyline.mjs');
+const run = (...args) => spawnSync(process.execPath, [cli, ...args], { cwd: repositoryRoot, encoding: 'utf8' });
 
 test('does not treat an option value as the repository root', () => {
   const result = run('status', '--port', '4444');

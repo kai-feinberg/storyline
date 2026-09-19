@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Storyline Showcase</title>
+    <style>
+      :root { color: #172735; background: #faf6f0; font: 16px/1.5 system-ui, sans-serif; }
+      body { max-width: 860px; margin: 0 auto; padding: 64px 24px; }
+      h1, h2, p { margin-top: 0; }
+      h1 { max-width: 620px; font-size: clamp(2.5rem, 8vw, 5rem); line-height: .98; letter-spacing: -.06em; }
+      .lede { max-width: 620px; color: #586b72; font-size: 1.15rem; }
+      .card { max-width: 620px; margin-top: 48px; padding: 28px; border: 1px solid #d8e3de; border-radius: 20px; background: #f2f8f4; }
+      .card p { color: #586b72; }
+      a { color: #176b5b; font-weight: 700; }
+      code { padding: 2px 5px; border-radius: 5px; background: #e4eee9; }
+      pre { overflow-x: auto; padding: 16px; border-radius: 12px; background: #172735; color: #eef5f1; }
+    </style>
+  </head>
+  <body>
+    <p>Storyline Showcase</p>
+    <h1>See the product story before the source code.</h1>
+    <p class="lede">Small, artifact-only examples for the Storyline viewer. Each example keeps the agent’s understanding and the generated visualization without bundling the original application.</p>
+    <article class="card">
+      <h2>StorySketch</h2>
+      <p>Create, preserve, and export a whiteboard explainer video.</p>
+      <p><a href="storysketch/README.md">Read the example notes</a> · <a href="storysketch/visualization.json">Inspect the artifact</a></p>
+      <pre><code>node plugins/storyline/scripts/storyline.mjs open-artifact showcase/storysketch/visualization.json</code></pre>
+    </article>
+  </body>
+</html>
