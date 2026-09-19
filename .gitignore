@@ -8,6 +8,8 @@ dist/
 .storyline/
 .ua/
 .understand-anything/
+.impeccable/
+archive/
 .env.local
 coverage/
 
