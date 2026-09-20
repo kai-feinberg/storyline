@@ -1,6 +1,6 @@
 ---
 name: storyline-understand
-description: Explore an unfamiliar local repository and create an evidence-backed `.storyline/understanding.json` for Storyline. Use when Codex must learn a product from its code, identify actors and outcomes, trace important user or system behaviors across entry points and boundaries, establish domain vocabulary, or prepare source evidence for Storyline artifact generation.
+description: Explore an unfamiliar local repository and create an evidence-backed `.storyline/understanding.json` for Storyline. Use when an agent must learn a product from its code, identify actors and outcomes, trace important user or system behaviors across entry points and boundaries, establish domain vocabulary, or prepare source evidence for Storyline artifact generation.
 ---
 
 # Storyline Understand
@@ -14,7 +14,7 @@ Read these references completely before writing output:
 
 ## Workflow
 
-1. Resolve the repository root. Run `node <plugin-root>/scripts/storyline.mjs init <root>` when `.storyline/` does not exist.
+1. Resolve the repository root and the Storyline bundle root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}` is the bundle root. In Codex, use the installed Storyline plugin directory. Run `node <plugin-root>/scripts/storyline.mjs init <root>` when `.storyline/` does not exist.
 2. Read repository instructions, product documents, READMEs, manifests, workspace configuration, and deployment configuration.
 3. Inventory source files with `rg --files`. Exclude ignored, generated, vendored, dependency, build, coverage, and secret files.
 4. Form an initial product model: actors, valuable outcomes, domain objects, applications, and system boundaries.

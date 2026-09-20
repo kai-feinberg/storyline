@@ -1,6 +1,6 @@
 ---
 name: storyline-generate
-description: Turn `.storyline/understanding.json` and repository source evidence into a validated `.storyline/visualization.json`. Use when Codex must select product behaviors as Stories, break user or system flows into plain-language Steps, apply Storyline vocabulary, attach Implementation traces, follow the supplied JSON Schema and correct examples, validate an artifact, or improve an existing Storyline visualization.
+description: Turn `.storyline/understanding.json` and repository source evidence into a validated `.storyline/visualization.json`. Use when an agent must select product behaviors as Stories, break user or system flows into plain-language Steps, apply Storyline vocabulary, attach Implementation traces, follow the supplied JSON Schema and correct examples, validate an artifact, or improve an existing Storyline visualization.
 ---
 
 # Storyline Generate
@@ -20,7 +20,7 @@ Use [artifact-contract.md](references/artifact-contract.md) only as a field-leve
 
 ## Workflow
 
-1. Read `<root>/.storyline/understanding.json` completely.
+1. Resolve the Storyline bundle root. In Claude Code, `${CLAUDE_PLUGIN_ROOT}` is the bundle root. In Codex, use the installed Storyline plugin directory. Read `<root>/.storyline/understanding.json` completely.
 2. Inspect relevant source and product documents when evidence is incomplete, ambiguous, or too technical.
 3. Write a short internal product model and list candidate Stories with actor, trigger, outcome, main object, and evidence.
 4. Select distinct, useful product behaviors. Merge technical fragments and reject incomplete or unsupported candidates.

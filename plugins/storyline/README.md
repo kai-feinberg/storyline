@@ -1,6 +1,23 @@
 # Storyline plugin
 
-This package contains the Storyline agent skills, artifact validator, local server, and compiled viewer.
+This package contains the Storyline agent skills, artifact validator, local server, and compiled viewer. It is compatible with both Codex and Claude Code.
+
+## Claude Code
+
+Claude Code discovers the skills from the `skills/` directory and the plugin metadata from `.claude-plugin/plugin.json`.
+
+For a local session, load this plugin with:
+
+```bash
+pnpm --dir ./plugins/storyline install
+claude --plugin-dir ./plugins/storyline
+```
+
+The dependency install is needed when loading a source checkout directly. Claude Code marketplace installs can install eligible Node.js dependencies automatically.
+
+The skills can be invoked by their namespaced forms, such as `/storyline:storyline-create`, or selected automatically when the request matches their descriptions.
+
+Claude Code resolves `${CLAUDE_PLUGIN_ROOT}` to this plugin directory. The Storyline skills use that path for the bundled scripts, references, and viewer assets.
 
 ## Create a visualization
 

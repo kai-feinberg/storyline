@@ -1,0 +1,10 @@
+{
+  "name": "storyline",
+  "version": "0.1.0",
+  "description": "Turn repositories into evidence-backed product Stories and open the validated Storyline visualization.",
+  "author": {
+    "name": "Kai Feinberg",
+    "url": "https://github.com/kai-feinberg"
+  },
+  "repository": "https://github.com/kai-feinberg/storyline"
+}

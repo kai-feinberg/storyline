@@ -1,0 +1,20 @@
+{
+  "name": "storyline",
+  "interface": {
+    "displayName": "Storyline"
+  },
+  "plugins": [
+    {
+      "name": "storyline",
+      "source": {
+        "source": "local",
+        "path": "./plugins/storyline"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,5 +1,42 @@
 # Storyline
 
+## Install
+
+### Codex
+
+From the repository root, add the Storyline marketplace and install the plugin:
+
+```bash
+codex plugin marketplace add kai-feinberg/storyline
+codex plugin add storyline@storyline
+```
+
+For a local checkout, replace the first command with `codex plugin marketplace add /absolute/path/to/storyline`. Start a new Codex thread after installation, then ask:
+
+```text
+Use Storyline to create and open a visualization of this repository.
+```
+
+### Claude Code
+
+From the repository root, install the plugin from the included marketplace:
+
+```bash
+claude plugin marketplace add .
+claude plugin install storyline@storyline
+```
+
+After this repository is published, use `claude plugin marketplace add kai-feinberg/storyline` instead of the local `.` path.
+
+For local development, load the plugin for one session instead:
+
+```bash
+pnpm --dir ./plugins/storyline install
+claude --plugin-dir ./plugins/storyline
+```
+
+Use `/storyline:storyline-create`, or ask Claude Code to use Storyline. The plugin includes the three Storyline skills, validator, local viewer, and viewer assets.
+
 Storyline helps you understand an unfamiliar codebase by showing what the product does before showing how the code implements it. It turns source code into readable product stories that connect outcomes to Steps, data, systems, and source evidence.
 
 Storyline answers **“What does this product do?”** before **“Which systems and files make it happen?”**

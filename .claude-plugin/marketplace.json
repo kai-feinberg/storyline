@@ -1,0 +1,20 @@
+{
+  "name": "storyline",
+  "owner": {
+    "name": "Kai Feinberg",
+    "url": "https://github.com/kai-feinberg"
+  },
+  "description": "Agent skills and tools for creating evidence-backed Storyline visualizations.",
+  "metadata": {
+    "description": "Agent skills and tools for creating evidence-backed Storyline visualizations."
+  },
+  "plugins": [
+    {
+      "name": "storyline",
+      "source": "./plugins/storyline",
+      "description": "Turn repositories into evidence-backed product Stories and open the validated Storyline visualization.",
+      "version": "0.1.0",
+      "repository": "https://github.com/kai-feinberg/storyline"
+    }
+  ]
+}

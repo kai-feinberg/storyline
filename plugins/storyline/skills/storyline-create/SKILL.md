@@ -1,6 +1,6 @@
 ---
 name: storyline-create
-description: Create and open a complete Storyline visualization from a local source repository with minimal user intervention. Use when Codex is asked to “use Storyline,” create a Storyline visualization, explain a repository as product Stories, run the full Storyline workflow, refresh an existing Storyline artifact, or initialize, understand, generate, validate, and view Storyline output end to end.
+description: Create and open a complete Storyline visualization from a local source repository with minimal user intervention. Use when an agent is asked to use Storyline, create a Storyline visualization, explain a repository as product Stories, run the full Storyline workflow, refresh an existing Storyline artifact, or initialize, understand, generate, validate, and view Storyline output end to end.
 ---
 
 # Storyline Create
@@ -23,7 +23,7 @@ Validate `visualization.json`, then open it in the bundled Storyline viewer unle
 ## Resolve paths
 
 1. Resolve the target repository root from the user’s request or current workspace.
-2. Resolve `<plugin-root>` as the `plugins/storyline` directory that contains this skill, its sibling skills, `scripts/storyline.mjs`, and the bundled viewer.
+2. Resolve `<plugin-root>` as the Storyline bundle directory that contains this skill, its sibling skills, `scripts/storyline.mjs`, and the bundled viewer. In Claude Code, `${CLAUDE_PLUGIN_ROOT}` is this directory. In Codex, use the installed Storyline plugin directory.
 3. Keep all generated analysis in `<repository-root>/.storyline/`.
 
 Do not write generated Storyline data elsewhere in the repository.
