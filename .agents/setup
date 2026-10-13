@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Orb setup for the Storyline repository: a pnpm workspace-free repo with two
+# independent pnpm packages (viewer and plugins/storyline). No databases,
+# services, or env files are required.
+
+step_start=$(date +%s)
+step() {
+  printf '[setup] %s (previous step took %ss)\n' "$1" "$(( $(date +%s) - step_start ))"
+  step_start=$(date +%s)
+}
+
+# Node.js ships with the orb base template.
+command -v node >/dev/null 2>&1 || {
+  echo 'node is required but was not found in the base template' >&2
+  exit 1
+}
+
+# pnpm ships with the orb base template too; fall back to corepack if absent.
+if ! command -v pnpm >/dev/null 2>&1; then
+  step 'installing pnpm via corepack'
+  corepack enable pnpm
+fi
+
+step 'installing viewer dependencies'
+pnpm --dir viewer install --frozen-lockfile
+
+step 'installing plugin dependencies'
+pnpm --dir plugins/storyline install --frozen-lockfile
+
+step 'setup complete'

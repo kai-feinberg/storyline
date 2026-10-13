@@ -12,6 +12,7 @@ dist/
 archive/
 .env.local
 coverage/
+.amp/portals/
 
 # Local installers and generated dependency metadata
 *.dmg
